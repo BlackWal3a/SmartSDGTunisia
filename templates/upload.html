@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  {% load static %}
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/apple-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/SmartSDG_Tunisia_Logo.png' %}">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Dataset Upload - SmartSDG Tunisia</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- CSS Files -->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/paper-kit.css' %}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{% static 'demo/demo.css' %}" rel="stylesheet" />
+  
+  <style>
+    .upload-section {
+      padding: 80px 0;
+      background-color: #f8f9fa;
+    }
+    .upload-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 40px;
+      margin-top: 30px;
+      border: none;
+    }
+    .upload-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .upload-header i {
+      font-size: 4rem;
+      color: #38bdf8;
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .form-control, .custom-select {
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus, .custom-select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25);
+    }
+    .btn-upload {
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    .btn-upload:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(56, 189, 248, 0.3);
+    }
+    .file-hint {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-top: 8px;
+      font-style: italic;
+    }
+    .dataset-icon {
+      color: #38bdf8;
+      margin-right: 10px;
+    }
+    
+    /* Color Ramp Cards */
+    .color-ramp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+    
+    .color-ramp-card {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+    }
+    
+    .color-ramp-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+    }
+    
+    .color-ramp-card.selected {
+      border-color: #38bdf8;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+    
+    .color-ramp-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #38bdf8;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .color-ramp-preview {
+      height: 40px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid #dee2e6;
+    }
+    
+    .ramp-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    .ramp-desc {
+      font-size: 0.75rem;
+      color: #6c757d;
+      display: block;
+    }
+    
+    .selected-ramp-display {
+      margin-top: 15px;
+      padding: 10px;
+      background: #e8f4fd;
+      border-radius: 6px;
+      border-left: 4px solid #38bdf8;
+    }
+    
+    /* Backend Color Ramp Definitions */
+    .spi { background: linear-gradient(to right, rgb(165, 0, 38), rgb(215, 48, 39), rgb(244, 109, 67), rgb(255, 255, 191), rgb(171, 217, 233), rgb(69, 117, 180), rgb(49, 54, 149)); }
+    .ndvi { background: linear-gradient(to right, rgb(165, 0, 38), rgb(215, 48, 39), rgb(244, 109, 67), rgb(255, 255, 191), rgb(145, 207, 96), rgb(0, 90, 0)); }
+    .lst { background: linear-gradient(to right, rgb(0, 0, 130), rgb(0, 120, 255), rgb(255, 255, 255), rgb(255, 140, 0), rgb(180, 0, 0)); }
+    .sm { background: linear-gradient(to right, rgb(139, 69, 19), rgb(210, 180, 140), rgb(0, 105, 148)); }
+    .risk { background: linear-gradient(to right, rgb(0, 255, 0), rgb(255, 255, 0), rgb(255, 165, 0), rgb(255, 0, 0), rgb(120, 0, 0)); }
+    .terrain { background: linear-gradient(to right, rgb(0, 0, 128), rgb(0, 128, 255), rgb(0, 255, 0), rgb(240, 230, 140), rgb(139, 69, 19), rgb(255, 255, 255)); }
+    .grayscale { background: linear-gradient(to right, rgb(0, 0, 0), rgb(255, 255, 255)); }
+    
+    /* Scientific Visualization Color Ramps */
+    .viridis { background: linear-gradient(to right, rgb(68, 1, 84), rgb(72, 38, 119), rgb(63, 74, 138), rgb(49, 104, 142), rgb(38, 130, 142), rgb(33, 145, 140), rgb(39, 160, 128), rgb(62, 174, 108), rgb(95, 188, 86), rgb(142, 202, 66), rgb(194, 215, 39)); }
+    .plasma { background: linear-gradient(to right, rgb(13, 8, 135), rgb(110, 0, 168), rgb(158, 23, 159), rgb(206, 18, 122), rgb(231, 96, 70), rgb(247, 148, 65), rgb(249, 192, 65), rgb(249, 220, 113), rgb(249, 244, 153), rgb(249, 248, 189), rgb(249, 248, 217)); }
+    .inferno { background: linear-gradient(to right, rgb(0, 0, 4), rgb(27, 12, 65), rgb(74, 12, 107), rgb(120, 28, 107), rgb(179, 43, 74), rgb(230, 98, 70), rgb(252, 154, 92), rgb(252, 208, 93), rgb(253, 231, 93), rgb(253, 247, 164), rgb(252, 254, 164)); }
+    .magma { background: linear-gradient(to right, rgb(0, 0, 4), rgb(24, 15, 61), rgb(68, 15, 118), rgb(114, 31, 129), rgb(158, 64, 127), rgb(205, 111, 113), rgb(241, 160, 93), rgb(253, 206, 104), rgb(254, 236, 142), rgb(252, 252, 189), rgb(252, 253, 191)); }
+    .cool { background: linear-gradient(to right, rgb(0, 255, 255), rgb(0, 128, 255), rgb(0, 0, 255), rgb(128, 0, 255), rgb(255, 0, 255)); }
+    .hot { background: linear-gradient(to right, rgb(0, 0, 0), rgb(128, 0, 0), rgb(255, 0, 0), rgb(255, 255, 0), rgb(255, 255, 255)); }
+    .rainbow { background: linear-gradient(to right, rgb(255, 0, 0), rgb(255, 127, 0), rgb(255, 255, 0), rgb(0, 255, 0), rgb(0, 0, 255), rgb(75, 0, 130), rgb(148, 0, 211)); }
+    .ocean { background: linear-gradient(to right, rgb(0, 31, 63), rgb(0, 63, 127), rgb(0, 116, 217), rgb(57, 204, 204), rgb(127, 219, 242), rgb(177, 229, 242)); }
+    .sunset { background: linear-gradient(to right,  rgb(255, 94, 77),  rgb(255, 154, 0),  rgb(255, 206, 84),  rgb(255, 235, 59),  rgb(255, 248, 225)); }
+    /* Single Color Gradients */
+    .blues { background: linear-gradient(to right, rgb(247, 251, 255), rgb(222, 235, 247), rgb(198, 219, 239), rgb(158, 202, 225), rgb(107, 174, 214), rgb(8, 81, 156)); }
+    .greens { background: linear-gradient(to right, rgb(247, 252, 245), rgb(229, 245, 224), rgb(199, 233, 192), rgb(161, 217, 155), rgb(116, 196, 118), rgb(0, 109, 44)); }
+    .reds { background: linear-gradient(to right, rgb(255, 245, 240), rgb(254, 224, 210), rgb(252, 187, 161), rgb(251, 146, 114), rgb(239, 101, 72), rgb(103, 0, 13)); }
+    .oranges { background: linear-gradient(to right, rgb(255, 245, 235), rgb(254, 230, 206), rgb(253, 208, 162), rgb(253, 174, 107), rgb(253, 141, 60), rgb(226, 56, 43)); }
+    .purples { background: linear-gradient(to right, rgb(252, 251, 253), rgb(239, 237, 245), rgb(218, 218, 235), rgb(189, 189, 220), rgb(158, 154, 200), rgb(117, 107, 177)); }
+    
+    /* Diverging Colormap */
+    .diverging { background: linear-gradient(to right, rgb(103, 0, 31), rgb(178, 24, 43), rgb(214, 96, 77), rgb(244, 165, 130), rgb(253, 219, 199), rgb(247, 247, 247), rgb(209, 229, 240), rgb(146, 197, 222), rgb(67, 147, 195), rgb(33, 102, 172), rgb(5, 48, 97)); }
+    
+    /* Success Message */
+    .success-message {
+      display: none;
+      padding: 20px;
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border: 1px solid #b8daff;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .success-icon {
+      font-size: 3rem;
+      color: #28a745;
+      margin-bottom: 15px;
+      animation: success-bounce 0.6s ease-out;
+    }
+    
+    @keyframes success-bounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #155724;
+      margin-bottom: 10px;
+    }
+    
+    .success-details {
+      color: #155724;
+      margin-bottom: 15px;
+    }
+    
+    .success-actions {
+      margin-top: 20px;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+    }
+    
+    .upload-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .upload-modal {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Upload Processing Overlay */
+    .upload-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    
+    .upload-modal {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    
+    .processing-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #38bdf8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .processing-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .processing-subtitle {
+      font-size: 1rem;
+      color: #6c757d;
+      margin-bottom: 20px;
+    }
+    
+    .processing-steps {
+      font-size: 0.9rem;
+      color: #868e96;
+      line-height: 1.6;
+    }
+    
+    /* Success State */
+    .upload-modal.success .processing-spinner {
+      border: 4px solid #28a745;
+      background: #28a745;
+      position: relative;
+      animation: none;
+    }
+    
+    .upload-modal.success .processing-spinner::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .upload-modal.success .processing-text {
+      color: #28a745;
+    }
+    
+    /* Error State */
+    .upload-modal.error .processing-spinner {
+      border: 4px solid #dc3545;
+      background: #dc3545;
+      position: relative;
+      animation: none;
+    }
+    
+    .upload-modal.error .processing-spinner::after {
+      content: '✗';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .upload-modal.error .processing-text {
+      color: #dc3545;
+    }
+    
+    .error-message {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #721c24;
+      font-size: 0.9rem;
+    }
+    
+    .success-message {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #155724;
+      font-size: 0.9rem;
+    }
+    
+    .modal-actions {
+      margin-top: 25px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .btn-modal {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary-modal {
+      background: #38bdf8;
+      color: white;
+    }
+    
+    .btn-primary-modal:hover {
+      background: #0ea5e9;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary-modal {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary-modal:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+
+<body class="landing-page sidebar-collapse">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
+    <div class="container">
+      <div class="navbar-translate">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'img/SmartSDG_Tunisia_Logo_white_bg.png' %}" alt="SmartSDG Logo" style="height: 50px; width: auto; margin-right: 10px;">
+          SSDG GIS Platform
+        </a>
+        <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse justify-content-end" id="navigation">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="/" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/about/" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="/maps/" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="/data-explorer/" class="nav-link">Data Explorer</a>
+          </li>
+          <li class="nav-item">
+            <a href="/upload/" class="nav-link active">Upload</a>
+          </li>
+          <li class="nav-item">
+            <a href="/methods/" class="nav-link">Methods</a>
+          </li>
+          <li class="nav-item">
+            <a href="/contact/" class="nav-link">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Star on GitHub" data-placement="bottom" href="https://github.com" target="_blank">
+              <i class="fa-brands fa-github"></i>
+              <p class="d-lg-none">GitHub</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  
+  <div class="page-header" data-parallax="true" style="background-image: url('{% static 'img/Map_BG10.jpg' %}')">
+    <div class="filter"></div>
+    <div class="container">
+      <div class="motto text-center">
+        <h1>Dataset Upload</h1>
+        <h3>Upload your geospatial datasets for analysis</h3>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main upload-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 ml-auto mr-auto">
+          <div class="card upload-card">
+            <div class="upload-header">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <h2 class="title">Geo Dataset Upload</h2>
+              <p class="description">Upload your geospatial data in GeoTIFF format for processing and visualization</p>
+            </div>
+
+            <form action="/upload/" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              
+              <!-- DATASET TYPE -->
+              <div class="form-group">
+                <label for="dataset">
+                  <i class="fas fa-database dataset-icon"></i>Dataset Type
+                </label>
+                <select name="dataset" class="form-control custom-select" id="dataset" required>
+                  <option value="">Select dataset type...</option>
+                  <option value="SPI">SPI (Standardized Precipitation Index)</option>
+                  <option value="NDVI">NDVI (Vegetation Index)</option>
+                  <option value="LST">LST (Land Surface Temperature)</option>
+                  <option value="SPEI">SPEI (Drought Index)</option>
+                  <option value="SM">SM (Soil Moisture)</option>
+                  <option value="CDI">CDI (Crop Drought Index)</option>
+                  <option value="EVI">EVI (Enhanced Vegetation Index)</option>
+                  <option value="NDWI">NDWI (Water Index)</option>
+                  <option value="DEM">DEM (Elevation Model)</option>
+                  <option value="FIRE_RISK">Fire Risk Index</option>
+                </select>
+              </div>
+
+              <!-- COLOR MAP -->
+              <div class="form-group">
+                <label>
+                  <i class="fas fa-palette dataset-icon"></i>Color Ramp
+                </label>
+                <div class="color-ramp-grid">
+                  <div class="color-ramp-card" data-value="viridis">
+                    <div class="color-ramp-preview viridis"></div>
+                    <span class="ramp-name">Viridis</span>
+                    <span class="ramp-desc">Scientific visualization</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="plasma">
+                    <div class="color-ramp-preview plasma"></div>
+                    <span class="ramp-name">Plasma</span>
+                    <span class="ramp-desc">Vibrant scientific</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="inferno">
+                    <div class="color-ramp-preview inferno"></div>
+                    <span class="ramp-name">Inferno</span>
+                    <span class="ramp-desc">Fire-like intensity</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="magma">
+                    <div class="color-ramp-preview magma"></div>
+                    <span class="ramp-name">Magma</span>
+                    <span class="ramp-desc">Lava flow</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="cool">
+                    <div class="color-ramp-preview cool"></div>
+                    <span class="ramp-name">Cool</span>
+                    <span class="ramp-desc">Blue-cyan gradient</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="hot">
+                    <div class="color-ramp-preview hot"></div>
+                    <span class="ramp-name">Hot</span>
+                    <span class="ramp-desc">Heat map</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="rainbow">
+                    <div class="color-ramp-preview rainbow"></div>
+                    <span class="ramp-name">Rainbow</span>
+                    <span class="ramp-desc">Full spectrum</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="ocean">
+                    <div class="color-ramp-preview ocean"></div>
+                    <span class="ramp-name">Ocean</span>
+                    <span class="ramp-desc">Deep sea blues</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="spi">
+                    <div class="color-ramp-preview spi"></div>
+                    <span class="ramp-name">SPI/Drought</span>
+                    <span class="ramp-desc">Drought monitoring</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="ndvi">
+                    <div class="color-ramp-preview ndvi"></div>
+                    <span class="ramp-name">NDVI</span>
+                    <span class="ramp-desc">Vegetation index</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="lst">
+                    <div class="color-ramp-preview lst"></div>
+                    <span class="ramp-name">Temperature</span>
+                    <span class="ramp-desc">Heat mapping</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="sm">
+                    <div class="color-ramp-preview sm"></div>
+                    <span class="ramp-name">Soil Moisture</span>
+                    <span class="ramp-desc">Moisture levels</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="risk">
+                    <div class="color-ramp-preview risk"></div>
+                    <span class="ramp-name">Risk</span>
+                    <span class="ramp-desc">Danger levels</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="terrain">
+                    <div class="color-ramp-preview terrain"></div>
+                    <span class="ramp-name">Terrain</span>
+                    <span class="ramp-desc">Elevation map</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="grayscale">
+                    <div class="color-ramp-preview grayscale"></div>
+                    <span class="ramp-name">Grayscale</span>
+                    <span class="ramp-desc">Black to white</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="blues">
+                    <div class="color-ramp-preview blues"></div>
+                    <span class="ramp-name">Blues</span>
+                    <span class="ramp-desc">Ocean depths</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="greens">
+                    <div class="color-ramp-preview greens"></div>
+                    <span class="ramp-name">Greens</span>
+                    <span class="ramp-desc">Forest shades</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="reds">
+                    <div class="color-ramp-preview reds"></div>
+                    <span class="ramp-name">Reds</span>
+                    <span class="ramp-desc">Warning colors</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="oranges">
+                    <div class="color-ramp-preview oranges"></div>
+                    <span class="ramp-name">Oranges</span>
+                    <span class="ramp-desc">Warm sunset</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="purples">
+                    <div class="color-ramp-preview purples"></div>
+                    <span class="ramp-name">Purples</span>
+                    <span class="ramp-desc">Royal shades</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="diverging">
+                    <div class="color-ramp-preview diverging"></div>
+                    <span class="ramp-name">Diverging</span>
+                    <span class="ramp-desc">Anomaly data</span>
+                  </div>
+                  <div class="color-ramp-card" data-value="sunset">
+                    <div class="color-ramp-preview sunset"></div>
+                    <span class="ramp-name">Sunset</span>
+                    <span class="ramp-desc">Warm sunset colors</span>
+                  </div>
+                </div>
+                <input type="hidden" name="colormap" id="selected-colormap" required>
+                <div class="selected-ramp-display">
+                  <strong>Selected:</strong> <span id="selected-ramp-name">None</span>
+                </div>
+              </div>
+
+              <!-- FILE -->
+              <div class="form-group">
+                <label for="zipfile">
+                  <i class="fas fa-file-archive dataset-icon"></i>GeoTIFF ZIP File
+                </label>
+                <input type="file" name="zipfile" class="form-control-file" id="zipfile" required accept=".zip">
+                <div class="file-hint">
+                  <i class="fas fa-info-circle"></i> Upload a ZIP containing .tif files (GeoTIFF format)
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-upload">
+                <i class="fas fa-rocket"></i> Upload & Process
+              </button>
+
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Processing Overlay -->
+  <div class="upload-overlay" id="uploadOverlay">
+    <div class="upload-modal" id="uploadModal">
+      <div class="processing-spinner" id="processingSpinner"></div>
+      <div class="processing-text" id="processingText">Processing...</div>
+      <div class="processing-subtitle" id="processingSubtitle">Please wait while we process your geospatial data</div>
+      <div class="processing-steps" id="processingSteps">
+        Validating file format and extracting data...
+      </div>
+      
+      <!-- Success/Error Messages (hidden initially) -->
+      <div class="success-message" id="successMessage" style="display: none;">
+        <strong> Upload Successful!</strong><br>
+        Your dataset has been processed and is ready for visualization.
+      </div>
+      
+      <div class="error-message" id="errorMessage" style="display: none;">
+        <strong> Upload Failed</strong><br>
+        <span id="errorDetails">There was an error processing your dataset.</span>
+      </div>
+      
+      <!-- Action Buttons (shown after completion) -->
+      <div class="modal-actions" id="modalActions" style="display: none;">
+        <button class="btn-modal btn-primary-modal" id="viewDatasetBtn" style="display: none;">
+          <i class="fas fa-map"></i> View Dataset
+        </button>
+        <button class="btn-modal btn-secondary-modal" id="uploadAnotherBtn" style="display: none;">
+          <i class="fas fa-plus"></i> Upload Another
+        </button>
+        <button class="btn-modal btn-secondary-modal" id="closeBtn" style="display: none;">
+          <i class="fas fa-times"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer footer-white">
+    <div class="container">
+      <div class="row">
+        <nav class="footer-nav">
+          <ul>
+            <li>
+              <a href="/">Home</a>
+            </li>
+            <li>
+              <a href="/about/">About</a>
+            </li>
+            <li>
+              <a href="/maps/">Dashboard</a>
+            </li>
+            <li>
+              <a href="/upload/">Upload</a>
+            </li>
+            <li>
+              <a href="/methods/">Methods</a>
+            </li>
+            <li>
+              <a href="/contact/">Contact</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="credits ml-auto">
+          <span class="copyright">
+            
+            <script>
+              document.write(new Date().getFullYear())
+            </script>, University of Manouba
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!--   Core JS Files   -->
+  <script src="{% static 'js/core/jquery.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'js/core/popper.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'js/core/bootstrap.min.js' %}" type="text/javascript"></script>
+  <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+  <script src="{% static 'js/plugins/bootstrap-switch.js' %}"></script>
+  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+  <script src="{% static 'js/plugins/nouislider.min.js' %}" type="text/javascript"></script>
+  <!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+  <script src="{% static 'js/plugins/moment.min.js' %}"></script>
+  <script src="{% static 'js/plugins/bootstrap-datepicker.js' %}" type="text/javascript"></script>
+  <!-- Control Center for Paper Kit: parallax effects, scripts for the example pages etc -->
+  <script src="{% static 'js/paper-kit.js' %}" type="text/javascript"></script>
+  
+  <!-- Enhanced Upload Processing Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const colorRampCards = document.querySelectorAll('.color-ramp-card');
+      const selectedColormapInput = document.getElementById('selected-colormap');
+      const selectedRampName = document.getElementById('selected-ramp-name');
+      const form = document.querySelector('form');
+      
+      // Processing overlay elements
+      const uploadOverlay = document.getElementById('uploadOverlay');
+      const uploadModal = document.getElementById('uploadModal');
+      const processingText = document.getElementById('processingText');
+      const processingSubtitle = document.getElementById('processingSubtitle');
+      const processingSteps = document.getElementById('processingSteps');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorDetails = document.getElementById('errorDetails');
+      const modalActions = document.getElementById('modalActions');
+      const viewDatasetBtn = document.getElementById('viewDatasetBtn');
+      const uploadAnotherBtn = document.getElementById('uploadAnotherBtn');
+      const closeBtn = document.getElementById('closeBtn');
+      
+      // Processing steps messages
+      const processingStepsMessages = [
+        "Validating file format and extracting data...",
+        "Processing GeoTIFF files and applying color ramp...",
+        "Generating metadata and creating database entries...",
+        "Finalizing dataset for visualization..."
+      ];
+      
+      let currentStep = 0;
+      let stepInterval;
+      
+      // Color ramp selection
+      colorRampCards.forEach(card => {
+        card.addEventListener('click', function() {
+          colorRampCards.forEach(c => c.classList.remove('selected'));
+          this.classList.add('selected');
+          const colormapValue = this.getAttribute('data-value');
+          selectedColormapInput.value = colormapValue;
+          const rampName = this.querySelector('.ramp-name').textContent;
+          selectedRampName.textContent = rampName;
+          selectedRampName.style.color = '#38bdf8';
+          selectedRampName.style.fontWeight = '600';
+        });
+      });
+      
+      // Form submission with processing
+      form.addEventListener('submit', function(e) {
+        if (!selectedColormapInput.value) {
+          e.preventDefault();
+          alert('Please select a color ramp for your dataset.');
+          document.querySelector('.color-ramp-grid').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          const grid = document.querySelector('.color-ramp-grid');
+          grid.style.animation = 'pulse 1s ease-in-out 3';
+          setTimeout(() => {
+            grid.style.animation = '';
+          }, 3000);
+          return;
+        }
+        
+        // Show processing overlay
+        showProcessing();
+        
+        // Submit form normally
+        return true;
+      });
+      
+      function showProcessing() {
+        // Reset state
+        currentStep = 0;
+        uploadModal.className = 'upload-modal';
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        modalActions.style.display = 'none';
+        processingText.style.display = 'block';
+        processingSubtitle.style.display = 'block';
+        processingSteps.style.display = 'block';
+        
+        // Show overlay
+        uploadOverlay.style.display = 'flex';
+        
+        // Start processing steps animation
+        stepInterval = setInterval(() => {
+          processingSteps.textContent = processingStepsMessages[currentStep];
+          currentStep = (currentStep + 1) % processingStepsMessages.length;
+        }, 2000);
+      }
+      
+      function showSuccess() {
+        clearInterval(stepInterval);
+        uploadModal.className = 'upload-modal success';
+        processingText.textContent = 'Processing Complete!';
+        processingSubtitle.textContent = 'Your dataset has been successfully processed';
+        processingSteps.style.display = 'none';
+        successMessage.style.display = 'block';
+        modalActions.style.display = 'flex';
+        viewDatasetBtn.style.display = 'inline-block';
+        uploadAnotherBtn.style.display = 'inline-block';
+        closeBtn.style.display = 'none';
+      }
+      
+      function showError(errorMsg = 'There was an error processing your dataset.') {
+        clearInterval(stepInterval);
+        uploadModal.className = 'upload-modal error';
+        processingText.textContent = 'Processing Failed';
+        processingSubtitle.textContent = 'Please check your file and try again';
+        processingSteps.style.display = 'none';
+        errorDetails.textContent = errorMsg;
+        errorMessage.style.display = 'block';
+        modalActions.style.display = 'flex';
+        viewDatasetBtn.style.display = 'none';
+        uploadAnotherBtn.style.display = 'inline-block';
+        closeBtn.style.display = 'inline-block';
+      }
+      
+      // Button actions
+      viewDatasetBtn.addEventListener('click', function() {
+        window.location.href = '/maps/';
+      });
+      
+      uploadAnotherBtn.addEventListener('click', function() {
+        hideOverlay();
+        form.reset();
+        colorRampCards.forEach(c => c.classList.remove('selected'));
+        selectedColormapInput.value = '';
+        selectedRampName.textContent = 'None';
+        selectedRampName.style.color = '';
+        selectedRampName.style.fontWeight = '';
+      });
+      
+      closeBtn.addEventListener('click', function() {
+        hideOverlay();
+      });
+      
+      function hideOverlay() {
+        clearInterval(stepInterval);
+        uploadOverlay.style.display = 'none';
+      }
+      
+      // Check for success/error response from server
+      window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const message = urlParams.get('message');
+        
+        if (status === 'success') {
+          showSuccess();
+        } else if (status === 'error') {
+          showError(decodeURIComponent(message || 'Unknown error occurred'));
+        }
+      });
+      
+      // Add pulse animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+  
+</body>
+
+</html>

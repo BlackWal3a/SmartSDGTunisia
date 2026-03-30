@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}SmartSDG Tunisia{% endblock %}
+
+{% block content %}
+  <div class="page-header" data-parallax="true" style="background-image: url('{% static 'img/Map_BG8.jpg' %}');">
+    <div class="filter"></div>
+    <div class="container">
+      <div class="motto text-center">
+        <img src="{% static 'img/SmartSDG_Tunisia_Logo_white_bg.png' %}" alt="SmartSDG Logo" style="height: 150px; width: auto; margin-bottom: 20px;">
+        <h1>SmartSDG Tunisia</h1>
+        <h3>Artificial Intelligence and Sattelite Imagery in Support of the SDG in Tunisia</h3>
+        <br />
+        <a href="{% url 'map_dashboard' %}" class="btn btn-outline-brand btn-round">Explore Dashboard</a>
+        <a href="{% url 'about' %}" class="btn btn-brand btn-round">Learn More</a>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="section text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">Sustainable Development Goals</h2>
+          </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="row justify-content-center">
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal1" target="_blank">
+                <img src="{% static 'img/sgds/sdg_1.jpg' %}" alt="SDG 1" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">No Poverty</h4>
+              <div class="sdg-description">
+                <p class="mb-0">End poverty in all its forms everywhere through sustainable development.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal2" target="_blank">
+                <img src="{% static 'img/sgds/sdg_2.png' %}" alt="SDG 2" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">Zero Hunger</h4>
+              <div class="sdg-description">
+                <p class="mb-0">End hunger and ensure food security through sustainable agriculture.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal6" target="_blank">
+                <img src="{% static 'img/sgds/sdg_6.png' %}" alt="SDG 6" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">Clean Water</h4>
+              <div class="sdg-description">
+                <p class="mb-0">Ensure availability and sustainable management of water for all.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal11" target="_blank">
+                <img src="{% static 'img/sgds/sdg_11.png' %}" alt="SDG 11" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">Sustainable Cities</h4>
+              <div class="sdg-description">
+                <p class="mb-0">Make cities inclusive, safe, resilient and sustainable.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal13" target="_blank">
+                <img src="{% static 'img/sgds/sdg_13.webp' %}" alt="SDG 13" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">Climate Action</h4>
+              <div class="sdg-description">
+                <p class="mb-0">Take urgent action to combat climate change and its impacts.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <div class="sdg-item">
+              <a href="https://sdgs.un.org/goals/goal15" target="_blank">
+                <img src="{% static 'img/sgds/sdg_15.png' %}" alt="SDG 15" style="width: 80px; height: 80px; object-fit: contain;">
+              </a>
+              <h4 class="info-title mt-3 mb-2">Life on Land</h4>
+              <div class="sdg-description">
+                <p class="mb-0">Protect, restore and promote sustainable use of terrestrial ecosystems.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section section-dark text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="title">Interactive Map Preview</h2>
+            <div id="tunisia-map" style="height: 450px; width: 100%; border-radius: 10px; margin: 0 auto 25px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); overflow: hidden;"></div>
+            <a href="{% url 'map_dashboard' %}" class="btn btn-brand btn-round" style="margin-top: 10px; padding: 10px 30px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; font-size: 0.9em;">
+              <i class="fa fa-map-marked-alt" style="margin-right: 8px;"></i> Explore Full Map
+            </a>
+            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+            <script>
+              // Initialize the map
+              var map = L.map('tunisia-map').setView([33.8869, 9.5375], 6);
+
+              // Add OpenStreetMap tiles
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+              }).addTo(map);
+
+              // Add NDVI layer overlay
+              var ndviBounds = [[30.219326158, 7.518898928], [37.549578876, 11.606233471]]; // Approximate Tunisia bounds
+              
+              // Define multiple layers
+              var layers = [
+                {
+                  name: 'NDVI',
+                  layer: L.imageOverlay('{% static "data/Tun_NDVI/Tunisia_NDVI_Avg.png" %}', ndviBounds, {
+                    opacity: 0.8,
+                    attribution: 'NDVI Data - Tunisia Average'
+                  })
+                },
+                {
+                  name: 'Land Use Land Cover',
+                  layer: L.imageOverlay('{% static "data/Tun_landuse_landcover/landuse_landcover_2019.png" %}', ndviBounds, {
+                    opacity: 0.8,
+                    attribution: 'Land Use Land Cover - Tunisia 2019'
+                  })
+                },
+                {
+                  name: 'Elevation',
+                  layer: L.imageOverlay('{% static "data/Tun_SPI_png/Tunisia_SPI_2025_10_22.png" %}', ndviBounds, {
+                    opacity: 0.8,
+                    attribution: 'SPI Index - Tunisia (Oct 2025)'
+                  })
+                }
+              ];
+              
+              // Add first layer
+              var currentLayerIndex = 0;
+              layers[currentLayerIndex].layer.addTo(map);
+              
+              // Layer controls
+              var layerControls = L.control({position: 'topright'});
+              layerControls.onAdd = function(map) {
+                var div = L.DomUtil.create('div', 'layer-controls');
+                div.innerHTML = '<div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">' +
+                  '<strong>Data Layers:</strong><br>' +
+                  layers.map(function(layer, index) {
+                    return '<label style="display: block; margin: 5px 0; cursor: pointer;">' +
+                      '<input type="radio" name="layer" value="' + index + '" ' + (index === 0 ? 'checked' : '') + ' onchange="switchLayer(' + index + ')"> ' +
+                      layer.name +
+                      '</label>';
+                  }).join('') +
+                  '</div>';
+                return div;
+              };
+              layerControls.addTo(map);
+              
+              // Layer switching function
+              window.switchLayer = function(index) {
+                map.removeLayer(layers[currentLayerIndex].layer);
+                layers[index].layer.addTo(map);
+                currentLayerIndex = index;
+              };
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-info">
+                <i class="fa fa-satellite"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Satellite Imagery</h4>
+                <p>High-resolution satellite data for monitoring environmental changes across Tunisia.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-success">
+                <i class="fa fa-brain"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">AI Analysis</h4>
+                <p>Machine learning algorithms for pattern recognition and predictive modeling.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-warning">
+                <i class="fa fa-chart-line"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">SDG Monitoring</h4>
+                <p>Real-time tracking of Sustainable Development Goals progress indicators.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="section text-center">
+      <div class="container">
+        <h2 class="title">Data Sources & Partners</h2>
+        <div class="row">
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/isamm_university_logo.png' %}" alt="ISAMM University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>ISAMM University</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/ministere_enseignement_superieur.png' %}" alt="Ministry of Higher Education" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>Ministry of Higher Education</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/mse_university_logo.png' %}" alt="MSE University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>MSE University</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

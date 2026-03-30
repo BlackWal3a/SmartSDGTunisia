@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img//apple-icon.png" %}>
+  <link rel="icon" type="image/png" href="{% static 'img//SmartSDG_Tunisia_Logo.png" %}>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Methods - SSDG</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" %} rel="stylesheet">
+  <!-- CSS Files -->
+  <link href="{% static 'css/bootstrap.min.css" %} rel="stylesheet" />
+  <link href="{% static 'css/paper-kit.css?v=2.2.0" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="demo/demo.css" %} rel="stylesheet" />
+</head>
+
+<body class="landing-page sidebar-collapse">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
+    <div class="container">
+      <div class="navbar-translate">
+        <a class="navbar-brand" href="/">
+          SSDG GIS Platform
+        </a>
+        <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse justify-content-end" id="navigation">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="/" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/about/" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="/maps/" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="/data-explorer/" class="nav-link">Data Explorer</a>
+          </li>
+          <li class="nav-item">
+            <a href="/methods/" class="nav-link active">Methods</a>
+          </li>
+          <li class="nav-item">
+            <a href="/contact/" class="nav-link">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Star on GitHub" data-placement="bottom" href="" target="_blank">
+              <i class="fa fa-github"></i>
+              <p class="d-lg-none">GitHub</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <div class="page-header" data-parallax="true" style="background-image: url('{% static 'img/Map_BG6.jpg' %}');">
+    <div class="filter"></div>
+    <div class="container">
+      <div class="motto text-center">
+        <h1>Methods & Documentation</h1>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">Data Sources</h2>
+            <p class="description">
+              Our platform utilizes data from a variety of sources, including Sentinel, Landsat, and Global Forest Change. These datasets provide global coverage and are updated regularly, allowing us to provide the most accurate and up-to-date information possible.
+            </p>
+            <h2 class="title">Preprocessing</h2>
+            <p class="description">
+              All of our data is preprocessed to ensure its quality and consistency. This includes cloud masking, mosaicking, and other techniques to remove atmospheric effects and other sources of noise.
+            </p>
+            <h2 class="title">Algorithms</h2>
+            <p class="description">
+              We use a variety of algorithms to analyze our data, including NDVI, fire detection, and terrain models. These algorithms are based on the latest scientific research and are constantly being improved and updated.
+            </p>
+            <h2 class="title">Limitations</h2>
+            <p class="description">
+              While we strive to provide the most accurate and up-to-date information possible, there are some limitations to our data and analysis. For example, our data may not be available for all areas, and our algorithms may not be able to detect all types of environmental change.
+            </p>
+            <h2 class="title">Update frequency</h2>
+            <p class="description">
+              Our data is updated on a regular basis, but the frequency of updates varies depending on the dataset. For example, our fire data is updated daily, while our forest cover data is updated annually.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="section text-center">
+      <div class="container">
+        <h2 class="title">Data Sources & Partners</h2>
+        <div class="row">
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/isamm_university_logo.png" %} alt="ISAMM University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>ISAMM University</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/ministere_enseignement_superieur.png" %} alt="Ministry of Higher Education" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>Ministry of Higher Education</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/mse_university_logo.png" %} alt="MSE University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>MSE University</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <footer class="footer   footer-white ">
+    <div class="container">
+      <div class="row">
+        <nav class="footer-nav">
+          <ul>
+            <li>
+              <a href="/maps/">Dashboard</a>
+            </li>
+            <li>
+              <a href="/about/">About</a>
+            </li>
+            <li>
+              <a href="/methods/">Methods</a>
+            </li>
+            <li>
+              <a href="/contact/">Contact</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="credits ml-auto">
+          <span class="copyright">
+            ©
+            <script>
+              document.write(new Date().getFullYear())
+            </script>, University of Manouba
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!--   Core JS Files   -->
+  <script src="{% static 'js/core/jquery.min.js" %} type="text/javascript"></script>
+  <script src="{% static 'js/core/popper.min.js" %} type="text/javascript"></script>
+  <script src="{% static 'js/core/bootstrap.min.js" %} type="text/javascript"></script>
+  <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+  <script src="{% static 'js/plugins/bootstrap-switch.js" %}></script>
+  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+  <script src="{% static 'js/plugins/nouislider.min.js" %} type="text/javascript"></script>
+  <!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+  <script src="{% static 'js/plugins/moment.min.js" %}></script>
+  <script src="{% static 'js/plugins/bootstrap-datepicker.js" %} type="text/javascript"></script>
+  <!-- Control Center for Paper Kit: parallax effects, scripts for the example pages etc -->
+  <script src="{% static 'js/paper-kit.js?v=2.2.0" type="text/javascript"></script>
+  <!--  Google Maps Plugin    -->
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+</body>
+
+</html>
