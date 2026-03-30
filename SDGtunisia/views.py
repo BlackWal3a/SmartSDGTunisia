@@ -18,6 +18,7 @@ def map_view(request):
 
 def maps_view(request):
     datasets = Dataset.objects.all()
+    print("Hello from my branch")
     return render(request, "maps.html", {"datasets": datasets})
 
 def index_view(request):
