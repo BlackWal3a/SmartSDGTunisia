@@ -18,7 +18,32 @@ def map_view(request):
 
 def maps_view(request):
     datasets = Dataset.objects.all()
-    return render(request, "maps.html", {"datasets": datasets})
+    
+    # Group datasets by SDG
+    sdg_groups = {}
+    for dataset in datasets:
+        sdg_number = dataset.with_sdg
+        if sdg_number:
+            # Extract just number from SDG field (e.g., "SDG 1" -> "1")
+            if isinstance(sdg_number, str) and sdg_number.isdigit():
+                sdg_num = sdg_number
+            elif isinstance(sdg_number, str) and sdg_number.startswith('SDG'):
+                sdg_num = sdg_number.replace('SDG', '').strip()
+            else:
+                sdg_num = str(sdg_number) if sdg_number else None
+            
+            if sdg_num and sdg_num.isdigit():
+                if sdg_num not in sdg_groups:
+                    sdg_groups[sdg_num] = {'datasets': []}
+                sdg_groups[sdg_num]['datasets'].append(dataset)
+    
+    # Only include SDGs that have actual image files (1, 2, 6, 11, 13, 15)
+    available_sdgs = ['1', '2', '6', '11', '13', '15']
+    all_sdgs = {}
+    for sdg_num in available_sdgs:
+        all_sdgs[sdg_num] = sdg_groups.get(sdg_num, {'datasets': []})
+    
+    return render(request, "maps.html", {"datasets": datasets, "sdg_groups": all_sdgs})
 
 def index_view(request):
     return render(request, "index.html")
