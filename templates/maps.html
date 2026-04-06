@@ -121,12 +121,12 @@
     /* SDG Icon Styles */
     .sdg-icon {
       --icon-color: #666;
-      margin: 8px 0 !important;
+      margin: 12px 0 !important;
     }
 
     .sdg-icon img {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       object-fit: contain;
       filter: grayscale(0%);
       transition: filter 0.2s ease, transform 0.2s ease;
@@ -152,6 +152,40 @@
       background-color: rgba(255, 255, 255, 0.95);
       border-color: rgba(1, 141, 194, 0.4);
       box-shadow: 0 4px 16px rgba(1, 141, 194, 0.15);
+    }
+
+    /* Tunisia Icon Styles */
+    .tunisia-icon {
+      margin: 12px 0 !important;
+      cursor: pointer;
+    }
+
+    .tunisia-icon img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+
+    .tunisia-icon:hover img {
+      transform: scale(1.08);
+    }
+
+    /* Head Icon Styles */
+    .head-icon {
+      margin: 12px 0 !important;
+      cursor: pointer;
+    }
+
+    .head-icon img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+
+    .head-icon:hover img {
+      transform: scale(1.08);
     }
 
     /* Dataset items under SDG */
@@ -279,7 +313,7 @@
       padding: 0;
       border-radius: 4px;
       width: 90%;
-      max-width: 480px;
+      max-width: 800px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       animation: modalSlideIn 0.3s ease-out;
       overflow: hidden;
@@ -337,6 +371,146 @@
     .modal-close:hover {
       background-color: rgba(0, 0, 0, 0.08);
       color: #333;
+    }
+
+    /* ============================================
+       ANALYSIS MODAL STYLES
+       ============================================ */
+
+    .analysis-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .analysis-loading {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #018dc2;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .analysis-results {
+      display: none;
+    }
+
+    .analysis-results.show {
+      display: block;
+    }
+
+    .pixel-result {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .pixel-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #01416d;
+      margin: 16px 0;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 2px solid #018dc2;
+    }
+
+    .pixel-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .pixel-meta-item {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+
+    .pixel-meta-label {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .pixel-meta-value {
+      font-size: 14px;
+      color: #01416d;
+      font-weight: 600;
+    }
+
+    .timeseries-result {
+      padding: 20px;
+    }
+
+    .timeseries-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .timeseries-coords {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 8px;
+    }
+
+    .timeseries-chart-container {
+      position: relative;
+      height: 450px;
+      margin: 20px 0;
+    }
+
+    .timeseries-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .stat-item {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #01416d;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .modal-body {
@@ -418,6 +592,62 @@
       font-size: 13px;
       color: #6c757d;
       font-weight: 500;
+    }
+
+    .panel-subnav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-bottom: 1px solid #eaeaea;
+      background: #fafafa;
+    }
+
+    .panel-tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #01416d;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .panel-tab.active,
+    .panel-tab:hover {
+      background: #ffffff;
+      border-color: #018dc2;
+      color: #01416d;
+      box-shadow: 0 0 0 1px rgba(1, 141, 194, 0.15);
+    }
+
+    .panel-tab-content {
+      display: none;
+    }
+
+    .analysis-tools {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .analysis-tool-help {
+      margin: 0;
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.5;
+    }
+
+    .analysis-tools .btn.active {
+      border-color: #2a892d !important;
+      background-color: rgba(42, 137, 45, 0.08) !important;
+      color: #2a892d !important;
+    }
+
+    .analysis-chart-wrapper {
+      width: 100%;
     }
 
     .panel-close {
@@ -924,6 +1154,11 @@
           </div>
         {% endfor %}
       </div>
+      
+      <!-- Head Icon -->
+      <div class="head-icon" onclick="toggleHead()">
+        <img src="{% static 'img/faces/head.png' %}" alt="Head">
+      </div>
     </div>
 
     <!-- Dataset Selection Panel -->
@@ -952,23 +1187,37 @@
           <button class="panel-close" onclick="closeYearSlider()">&times;</button>
         </div>
       </div>
+
+      <div class="panel-subnav">
+        <button class="panel-tab active" id="legend-tab-btn" onclick="showLayerPanelTab('legend')">Legend</button>
+        <button class="panel-tab" id="analysis-tab-btn" onclick="showLayerPanelTab('analysis')">Analysis</button>
+      </div>
+
       <div class="layer-list">
-        <div class="year-slider-container" id="year-slider-container" style="display: none;">
-          <div class="year-display" id="year-display">Loading...</div>
-          <input type="range" class="year-slider" id="year-slider" min="0" max="0" value="0" oninput="updateYear()">
-          <div class="year-info">
-            <span id="year-min">-</span>
-            <span id="year-max">-</span>
+        <div class="panel-tab-content" id="legend-tab">
+          <div class="year-slider-container" id="year-slider-container" style="display: none;">
+            <div class="year-display" id="year-display">Loading...</div>
+            <input type="range" class="year-slider" id="year-slider" min="0" max="0" value="0" oninput="updateYear()">
+            <div class="year-info">
+              <span id="year-min">-</span>
+              <span id="year-max">-</span>
+            </div>
+            <button type="button" class="btn btn-info btn-round btn-sm" onclick="toggleAnimation()">Play / Pause</button>
           </div>
-          <button type="button" class="btn btn-info btn-round btn-sm" onclick="toggleAnimation()">Play / Pause</button>
-          <div style="margin-top: 10px;">
-            <button type="button" class="btn btn-success btn-round btn-sm" onclick="enableTimeSeriesMode()" id="timeseries-btn">Time Series Mode</button>
-            <button type="button" class="btn btn-default btn-round btn-sm" onclick="disableTimeSeriesMode()" id="normal-mode-btn" style="display: none;">Normal Mode</button>
+        </div>
+
+        <div class="panel-tab-content" id="analysis-tab" style="display: none;">
+          <div class="analysis-tools">
+            <button type="button" class="btn btn-default btn-round btn-sm" id="pixel-tool-btn" onclick="activatePixelTool()">Pixel Select</button>
+            <button type="button" class="btn btn-default btn-round btn-sm" id="timeseries-tool-btn" onclick="activateTimeSeriesTool()">Time Analysis</button>
+          </div>
+          <p class="analysis-tool-help" id="analysis-tool-help">Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history.</p>
+          <div id="analysis-chart-wrapper" style="display: none; margin-top: 20px;">
+            <canvas id="chart"></canvas>
           </div>
         </div>
       </div>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <canvas id="chart"></canvas>
     </div>
 
     <!-- Map Container -->
@@ -1041,6 +1290,25 @@
         </div>
       </div>
     </div>
+
+    <!-- Analysis Results Modal -->
+    <div class="analysis-modal" id="analysisModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="analysis-modal-title">Analysis Results</h3>
+          <button class="modal-close" onclick="closeAnalysisModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="analysis-loading" class="analysis-loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading analysis data...</p>
+          </div>
+          <div id="analysis-results" class="analysis-results">
+            <!-- Results will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Leaflet JavaScript -->
@@ -1092,6 +1360,20 @@ function toggleSDG(sdgNumber) {
         // Open dataset panel with this SDG's datasets
         openDatasetPanel(sdgNumber);
     }
+}
+
+/* =========================================
+   🏛️ TUNISIA & HEAD ICON FUNCTIONS
+========================================= */
+
+function toggleTunisia() {
+    // Placeholder function - will be implemented later
+    console.log('Tunisia icon clicked - functionality to be implemented');
+}
+
+function toggleHead() {
+    // Placeholder function - will be implemented later
+    console.log('Head icon clicked - functionality to be implemented');
 }
 
 function openDatasetPanel(sdgNumber) {
@@ -1323,6 +1605,70 @@ function openSliderPanel() {
     const panel = document.getElementById('year-slider-panel');
     panel.style.display = 'flex';
     panel.style.transform = 'translateX(0)';
+    showLayerPanelTab('legend');
+    deactivateAnalysisTools();
+}
+
+function showLayerPanelTab(tab) {
+    const legendTab = document.getElementById('legend-tab');
+    const analysisTab = document.getElementById('analysis-tab');
+    const legendBtn = document.getElementById('legend-tab-btn');
+    const analysisBtn = document.getElementById('analysis-tab-btn');
+
+    if (tab === 'analysis') {
+        legendTab.style.display = 'none';
+        analysisTab.style.display = 'block';
+        legendBtn.classList.remove('active');
+        analysisBtn.classList.add('active');
+    } else {
+        legendTab.style.display = 'block';
+        analysisTab.style.display = 'none';
+        legendBtn.classList.add('active');
+        analysisBtn.classList.remove('active');
+        deactivateAnalysisTools();
+    }
+}
+
+function activatePixelTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Pixel Select.');
+        return;
+    }
+
+    document.getElementById('pixel-tool-btn').classList.add('active');
+    document.getElementById('timeseries-tool-btn').classList.remove('active');
+    document.getElementById('analysis-tool-help').textContent = 'Pixel Select is active. Click the map to inspect the exact pixel value for the current tile.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    setMapClickHandler(getPixelValue);
+}
+
+function activateTimeSeriesTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Time Analysis.');
+        return;
+    }
+
+    document.getElementById('pixel-tool-btn').classList.remove('active');
+    document.getElementById('timeseries-tool-btn').classList.add('active');
+    document.getElementById('analysis-tool-help').textContent = 'Time Analysis is active. Click the map to choose a point and load a time series.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'block';
+    setMapClickHandler(selectTimeSeriesPoint);
+}
+
+function deactivateAnalysisTools() {
+    const pixelBtn = document.getElementById('pixel-tool-btn');
+    const timeseriesBtn = document.getElementById('timeseries-tool-btn');
+
+    if (pixelBtn) pixelBtn.classList.remove('active');
+    if (timeseriesBtn) timeseriesBtn.classList.remove('active');
+    document.getElementById('analysis-tool-help').textContent = 'Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    setMapClickHandler(null);
+
+    if (timeSeriesMarker) {
+        map.removeLayer(timeSeriesMarker);
+        timeSeriesMarker = null;
+    }
 }
 
 function closeYearSlider() {
@@ -1349,6 +1695,7 @@ function closeYearSlider() {
     }
 
     currentDatasetId = null;
+    deactivateAnalysisTools();
 
     setTimeout(() => {
         if (!currentDatasetId) {
@@ -1415,39 +1762,50 @@ function toggleAnimation() {
   /* =========================================
    📂 13. //Click Handler
 ========================================= */
-map.on('click', function(e) {
+function setMapClickHandler(handler) {
+    map.off('click');
+    if (typeof handler === 'function') {
+        map.on('click', function(e) {
+            handler(e.latlng);
+        });
+    }
+}
 
+function getPixelValue(latlng) {
     if (!currentDatasetId) return;
 
     const tiles = datasetTiles[currentDatasetId];
+    if (!tiles || tiles.length === 0) return;
+
     const slider = document.getElementById('year-slider');
     const tile = tiles[slider.value];
+    const lat = latlng.lat;
+    const lng = latlng.lng;
 
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
+    // Show loading modal
+    showAnalysisModal('Pixel Analysis', 'loading');
 
     fetch(`/api/pixel/?lat=${lat}&lng=${lng}&tile_id=${tile.id}`)
         .then(res => res.json())
         .then(data => {
-
             if (data.error) {
-                alert(data.error);
+                showAnalysisModal('Pixel Analysis', 'error', data.error);
                 return;
             }
 
             if (data.value === null) {
-                alert("No data (nodata pixel)");
+                showAnalysisModal('Pixel Analysis', 'error', 'No data (nodata pixel)');
                 return;
             }
 
-            alert(`📍 Exact Value: ${data.value.toFixed(4)}\nDate: ${tile.date_str}`);
+            // Show pixel result
+            showPixelResult(data.value, tile.date_str, lat, lng);
         })
         .catch(err => {
             console.error(err);
-            alert("Error retrieving pixel value");
+            showAnalysisModal('Pixel Analysis', 'error', 'Error retrieving pixel value');
         });
-
-});
+}
 
   /* =========================================
    📂 14. //Time Series Mode Functions
@@ -1529,18 +1887,21 @@ function getTimeSeries() {
     const startMonth = 1;
     const endMonth = 12;
 
+    // Show loading modal
+    showAnalysisModal('Time Series Analysis', 'loading');
+
     fetch(`/api/timeseries/?lat=${lat}&lng=${lng}&dataset_id=${currentDatasetId}&start_year=${startYear}&start_month=${startMonth}&end_year=${endYear}&end_month=${endMonth}`)
         .then(res => res.json())
         .then(data => {
             if (data.error) {
-                alert("Error: " + data.error);
+                showAnalysisModal('Time Series Analysis', 'error', data.error);
                 return;
             }
-            drawChart(data.timeseries);
+            showTimeSeriesResult(data.timeseries, lat, lng);
         })
         .catch(err => {
             console.error(err);
-            alert("Error retrieving time series data");
+            showAnalysisModal('Time Series Analysis', 'error', 'Error retrieving time series data');
         });
 }
 
@@ -1711,6 +2072,181 @@ window.onclick = function(event) {
         closeDatasetModal();
     }
 }
+
+/* =========================================
+   📊 ANALYSIS MODAL FUNCTIONS
+========================================= */
+
+function showAnalysisModal(title, state, errorMessage = null) {
+    const modal = document.getElementById('analysisModal');
+    const modalTitle = document.getElementById('analysis-modal-title');
+    const loadingDiv = document.getElementById('analysis-loading');
+    const resultsDiv = document.getElementById('analysis-results');
+
+    modalTitle.textContent = title;
+
+    if (state === 'loading') {
+        loadingDiv.style.display = 'block';
+        resultsDiv.style.display = 'none';
+        resultsDiv.classList.remove('show');
+    } else if (state === 'error') {
+        loadingDiv.style.display = 'none';
+        resultsDiv.innerHTML = `
+            <div class="pixel-result">
+                <div style="color: #dc3545; font-size: 18px; margin-bottom: 16px;">
+                    <i class="fa fa-exclamation-triangle"></i> Error
+                </div>
+                <p style="color: #6c757d; margin: 0;">${errorMessage}</p>
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+        resultsDiv.classList.add('show');
+    }
+
+    modal.style.display = 'block';
+}
+
+function showPixelResult(value, date, lat, lng) {
+    const resultsDiv = document.getElementById('analysis-results');
+    const loadingDiv = document.getElementById('analysis-loading');
+
+    loadingDiv.style.display = 'none';
+
+    resultsDiv.innerHTML = `
+        <div class="pixel-result">
+            <div class="pixel-value">${value.toFixed(4)}</div>
+            <div class="pixel-meta">
+                <div class="pixel-meta-item">
+                    <div class="pixel-meta-label">Date</div>
+                    <div class="pixel-meta-value">${date}</div>
+                </div>
+                <div class="pixel-meta-item">
+                    <div class="pixel-meta-label">Coordinates</div>
+                    <div class="pixel-meta-value">${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    resultsDiv.style.display = 'block';
+    resultsDiv.classList.add('show');
+}
+
+function showTimeSeriesResult(series, lat, lng) {
+    const resultsDiv = document.getElementById('analysis-results');
+    const loadingDiv = document.getElementById('analysis-loading');
+
+    loadingDiv.style.display = 'none';
+
+    // Calculate statistics
+    const values = series.map(p => p.value).filter(v => v !== null);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+    resultsDiv.innerHTML = `
+        <div class="timeseries-result">
+            <div class="timeseries-header">
+                <div class="timeseries-coords">Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+                <h4 style="margin: 8px 0; color: #01416d;">Time Series Analysis</h4>
+            </div>
+            <div class="timeseries-chart-container">
+                <canvas id="modal-chart"></canvas>
+            </div>
+            <div class="timeseries-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${min.toFixed(2)}</div>
+                    <div class="stat-label">Minimum</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${max.toFixed(2)}</div>
+                    <div class="stat-label">Maximum</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${avg.toFixed(2)}</div>
+                    <div class="stat-label">Average</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${values.length}</div>
+                    <div class="stat-label">Data Points</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    resultsDiv.style.display = 'block';
+    resultsDiv.classList.add('show');
+
+    // Draw chart in modal
+    drawModalChart(series);
+}
+
+function drawModalChart(series) {
+    const chartCanvas = document.getElementById('modal-chart');
+    const existingChart = Chart.getChart(chartCanvas);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const labels = series.map(p => p.date);
+    const values = series.map(p => p.value);
+
+    const ctx = chartCanvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pixel Value',
+                data: values,
+                fill: false,
+                tension: 0.2,
+                borderColor: '#018dc2',
+                backgroundColor: '#018dc2',
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                spanGaps: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Value'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function closeAnalysisModal() {
+    const modal = document.getElementById('analysisModal');
+    modal.style.display = 'none';
+}
+
+// Close analysis modal when clicking outside
+document.getElementById('analysisModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeAnalysisModal();
+    }
+});
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(event) {
