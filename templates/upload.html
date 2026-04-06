@@ -21,7 +21,7 @@
   
   <style>
     .upload-section {
-      padding: 80px 0;
+      padding: 60px 0 80px 0;
       background-color: #f8f9fa;
     }
     .upload-card {
@@ -52,6 +52,12 @@
       padding: 12px 15px;
       font-size: 1rem;
       transition: all 0.3s ease;
+      width: 100%;
+      min-height: 48px;
+    }
+    #dataset {
+      width: 100%;
+      min-width: 250px;
     }
     .form-control:focus, .custom-select:focus {
       border-color: #38bdf8;
@@ -515,7 +521,7 @@
   </nav>
   <!-- End Navbar -->
   
-  <div class="page-header" data-parallax="true" style="background-image: url('{% static 'img/Map_BG10.jpg' %}')">
+  <div class="page-header" style="background-image: url('{% static 'img/Map_BG10.jpg' %}'); position: relative;">
     <div class="filter"></div>
     <div class="container">
       <div class="motto text-center">
@@ -529,46 +535,67 @@
     <div class="container">
       <div class="row">
         <div class="col-md-8 ml-auto mr-auto">
-          <div class="card upload-card">
-            <div class="upload-header">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <h2 class="title">Geo Dataset Upload</h2>
-              <p class="description">Upload your geospatial data in GeoTIFF format for processing and visualization</p>
+          <div class="upload-header">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h2 class="title">Geo Dataset Upload</h2>
+            <p class="description">Upload your geospatial data in GeoTIFF format for processing and visualization</p>
+          </div>
+
+          <form action="/upload/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- DATASET TYPE -->
+            <div class="form-group">
+              <label for="dataset">
+                <i class="fas fa-database dataset-icon"></i>Dataset Type
+              </label>
+              <select name="dataset" class="form-control custom-select" id="dataset" required>
+                <option value="">Select dataset type...</option>
+                <option value="SPI">SPI (Standardized Precipitation Index)</option>
+                <option value="NDVI">NDVI (Vegetation Index)</option>
+                <option value="LST">LST (Land Surface Temperature)</option>
+                <option value="SPEI">SPEI (Drought Index)</option>
+                <option value="SM">SM (Soil Moisture)</option>
+                <option value="CDI">CDI (Crop Drought Index)</option>
+                <option value="EVI">EVI (Enhanced Vegetation Index)</option>
+                <option value="NDWI">NDWI (Water Index)</option>
+                <option value="DEM">DEM (Elevation Model)</option>
+                <option value="FIRE_RISK">Fire Risk Index</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sdg">
+                <i class="fas fa-globe dataset-icon"></i>Sustainable Development Goal
+              </label>
+              <select name="sdg" class="form-control custom-select" id="sdg" required>
+                <option value="">Select SDG...</option>
+                <option value="1">SDG 1 - No Poverty</option>
+                <option value="2">SDG 2 - Zero Hunger</option>
+                <option value="6">SDG 6 - Clean Water</option>
+                <option value="11">SDG 11 - Sustainable Cities</option>
+                <option value="13">SDG 13 - Climate Action</option>
+                <option value="15">SDG 15 - Life on Land</option>
+              </select>
             </div>
 
-            <form action="/upload/" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              
-              <!-- DATASET TYPE -->
-              <div class="form-group">
-                <label for="dataset">
-                  <i class="fas fa-database dataset-icon"></i>Dataset Type
-                </label>
-                <select name="dataset" class="form-control custom-select" id="dataset" required>
-                  <option value="">Select dataset type...</option>
-                  <option value="SPI">SPI (Standardized Precipitation Index)</option>
-                  <option value="NDVI">NDVI (Vegetation Index)</option>
-                  <option value="LST">LST (Land Surface Temperature)</option>
-                  <option value="SPEI">SPEI (Drought Index)</option>
-                  <option value="SM">SM (Soil Moisture)</option>
-                  <option value="CDI">CDI (Crop Drought Index)</option>
-                  <option value="EVI">EVI (Enhanced Vegetation Index)</option>
-                  <option value="NDWI">NDWI (Water Index)</option>
-                  <option value="DEM">DEM (Elevation Model)</option>
-                  <option value="FIRE_RISK">Fire Risk Index</option>
-                </select>
-              </div>
+            <!-- DESCRIPTION -->
+            <div class="form-group">
+              <label for="description">
+                <i class="fas fa-info-circle dataset-icon"></i>Description
+              </label>
+              <textarea name="description" class="form-control" id="description" rows="4" placeholder="Enter a description for this dataset..."></textarea>
+            </div>
 
-              <!-- COLOR MAP -->
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-palette dataset-icon"></i>Color Ramp
-                </label>
-                <div class="color-ramp-grid">
-                  <div class="color-ramp-card" data-value="viridis">
-                    <div class="color-ramp-preview viridis"></div>
-                    <span class="ramp-name">Viridis</span>
-                    <span class="ramp-desc">Scientific visualization</span>
+            <!-- COLOR MAP -->
+            <div class="form-group">
+              <label>
+                <i class="fas fa-palette dataset-icon"></i>Color Ramp
+              </label>
+              <div class="color-ramp-grid">
+                <div class="color-ramp-card" data-value="viridis">
+                  <div class="color-ramp-preview viridis"></div>
+                  <span class="ramp-name">Viridis</span>
+                  <span class="ramp-desc">Scientific visualization</span>
                   </div>
                   <div class="color-ramp-card" data-value="plasma">
                     <div class="color-ramp-preview plasma"></div>

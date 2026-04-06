@@ -42,7 +42,7 @@
       position: fixed;
       left: 0;
       top: 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      box-shadow: 2px 0 16px rgba(0,0,0,0.08);
     }
     
     .sidebar-logo {
@@ -51,28 +51,35 @@
       text-align: center;
       border-bottom: 1px solid rgba(0,0,0,0.05);
       margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     
     .sidebar-logo img {
-      max-width: 40px;
+      max-width: 48px;
       height: auto;
     }
 
     .sidebar-icon {
-      width: 60px;
-      height: 70px;
+      width: 72px;
+      height: 72px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       margin: 8px 0;
       border-radius: 4px;
-      color: #666666;
+      color: rgba(20, 20, 20, 0.9);
       position: relative;
       font-size: 16px;
       padding: 5px;
       cursor: pointer;
       transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .sidebar-icon i {
@@ -81,58 +88,71 @@
     }
 
     .sidebar-icon .dataset-name {
-      font-size: 10px;
+      font-size: 11px;
+      font-weight: 600;
       text-align: center;
       line-height: 1.2;
       word-wrap: break-word;
-      max-width: 55px;
-      color: #666;
+      max-width: 62px;
+      color: rgba(20, 20, 20, 0.85);
+      letter-spacing: 0.2px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* Sidebar Icon Category Colors */
     .sidebar-icon[data-category="land-use"]:hover {
-      color: #492368;
-      background-color: rgba(73, 35, 104, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="vegetation"]:hover {
-      color: #fdc52d;
-      background-color: rgba(253, 197, 45, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="water"]:hover {
-      color: #492368;
-      background-color: rgba(73, 35, 104, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="biodiversity"]:hover {
-      color: #fdc52d;
-      background-color: rgba(253, 197, 45, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="climate"]:hover {
-      color: #492368;
-      background-color: rgba(73, 35, 104, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="urban"]:hover {
-      color: #fdc52d;
-      background-color: rgba(253, 197, 45, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="fires"]:hover {
-      color: #492368;
-      background-color: rgba(73, 35, 104, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="soil"]:hover {
-      color: #fdc52d;
-      background-color: rgba(253, 197, 45, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
     }
     
     .sidebar-icon[data-category="boundaries"]:hover {
-      color: #492368;
-      background-color: rgba(73, 35, 104, 0.1);
+      color: rgba(20, 20, 20, 0.95);
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    .sidebar-icon:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.12);
+    }
+
+    .sidebar-icon:active {
+      transform: translateY(0);
     }
 
     .sidebar-icon .tooltip {
@@ -173,25 +193,30 @@
     /* Layer Panel */
     .layer-panel {
       width: 380px;
-      height: 100%;
-      background-color: white;
-      position: absolute;
-      left: 100px;
-      top: 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      transform: translateX(-100%);
+      height: calc(100vh - 40px);
+      background: rgba(255, 255, 255, 0.92);
+      position: fixed;
+      left: 120px;
+      top: 20px;
+      border-radius: 2px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+      transform: translateX(calc(-100% - 30px));
       z-index: 999;
-      display: flex;
+      display: none;
       flex-direction: column;
       transition: transform 0.3s ease;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
     .panel-header {
       padding: 20px;
       border-bottom: 1px solid #e9ecef;
       position: relative;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #f8f9fa;
+      color: #222;
     }
 
     .panel-header h4 {
@@ -210,14 +235,14 @@
       position: absolute;
       right: 15px;
       top: 15px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.65);
       border: none;
       font-size: 18px;
       cursor: pointer;
       color: white;
       width: 30px;
       height: 30px;
-      border-radius: 50%;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -225,7 +250,7 @@
     }
 
     .panel-close:hover {
-      background: rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.8);
     }
 
     .layer-list {
@@ -236,10 +261,19 @@
 
     .layer-details {
       background-color: #f8f9fa;
-      border-radius: 8px;
+      border-radius: 4px;
       padding: 20px;
       margin-bottom: 20px;
       border: 1px solid #e9ecef;
+    }
+
+    .layer-panel {
+      font-family: "Montserrat", "Helvetica", Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .layer-panel button {
+      font-family: inherit;
     }
 
     .layer-details h5 {
@@ -292,7 +326,7 @@
     .layer-color {
       width: 16px;
       height: 16px;
-      border-radius: 3px;
+      border-radius: 4px;
       display: inline-block;
       margin-right: 8px;
     }
@@ -364,7 +398,7 @@
       width: 36px;
       height: 36px;
       background-color: white;
-      border-radius: 4px;
+      border-radius: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -394,8 +428,15 @@
       padding: 20px;
       text-align: center;
       background: white;
-      border-radius: 8px;
+      border-radius: 4px;
       border: 1px solid #e9ecef;
+    }
+
+    #chart {
+      display: none;
+      width: 100% !important;
+      height: 220px !important;
+      margin-top: 15px;
     }
     
     .year-display {
@@ -405,13 +446,13 @@
       margin-bottom: 20px;
       padding: 15px;
       background: #f8f9fa;
-      border-radius: 8px;
+      border-radius: 4px;
     }
     
     .year-slider {
       width: 100%;
       height: 6px;
-      border-radius: 3px;
+      border-radius: 4px;
       background: #ddd;
       outline: none;
       margin: 10px 0;
@@ -421,7 +462,7 @@
       appearance: none;
       width: 20px;
       height: 20px;
-      border-radius: 50%;
+      border-radius: 4px;
       background: #2196f3;
       cursor: pointer;
     }
@@ -429,7 +470,7 @@
     .year-slider::-moz-range-thumb {
       width: 20px;
       height: 20px;
-      border-radius: 50%;
+      border-radius: 4px;
       background: #2196f3;
       cursor: pointer;
       border: none;
@@ -445,19 +486,20 @@
     
     /* Active dataset button */
     .dataset-btn.active {
-      background-color: #2196f3 !important;
-      color: white !important;
+      background-color: rgba(33, 150, 243, 0.92) !important;
+      color: #ffffff !important;
+      border-color: rgba(33, 150, 243, 0.65) !important;
     }
     
     .dataset-btn.active:hover {
-      background-color: #1976d2 !important;
+      background-color: rgba(25, 118, 210, 0.92) !important;
     }
     .form-check-input.toggle-switch {
       width: 3rem;
       height: 1.5rem;
       background-color: #dee2e6;
       border: 1px solid #ced4da;
-      border-radius: 1rem;
+      border-radius: 4px;
       position: relative;
       outline: none;
       display: block;
@@ -476,7 +518,7 @@
       width: 1.2rem;
       height: 1.2rem;
       background-color: white;
-      border-radius: 50%;
+      border-radius: 4px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
@@ -553,9 +595,11 @@
             <span id="year-min">-</span>
             <span id="year-max">-</span>
           </div>
-          <button onclick="toggleAnimation()">▶ / ⏸ Play</button>
-        <button onclick="enableTimeSeriesMode()" id="timeseries-btn" style="margin-top: 10px; background: #28a745;">📈 Time Series Mode</button>
-        <button onclick="disableTimeSeriesMode()" id="normal-mode-btn" style="margin-top: 10px; background: #6c757d; display: none;">🗺️ Normal Mode</button>
+          <button type="button" class="btn btn-info btn-round btn-sm" onclick="toggleAnimation()">Play / Pause</button>
+          <div style="margin-top: 10px;">
+            <button type="button" class="btn btn-success btn-round btn-sm" onclick="enableTimeSeriesMode()" id="timeseries-btn">Time Series Mode</button>
+            <button type="button" class="btn btn-default btn-round btn-sm" onclick="disableTimeSeriesMode()" id="normal-mode-btn" style="display: none;">Normal Mode</button>
+          </div>
         </div>
       </div>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -700,7 +744,7 @@ function updateDatasetPanel(info, tiles) {
         `${tiles.length} time periods available`;
 
     document.getElementById('detail-name').textContent =
-        info.name || 'Unknown';
+        info.index_name || info.name || 'Unknown';
 
     document.getElementById('detail-colormap').textContent =
         info.colormap || 'Unknown';
@@ -807,7 +851,7 @@ function updateTileInfo(tile, totalTiles, index = null) {
 
     // Layer name
     document.getElementById('detail-name').textContent =
-        tile.name || 'Unknown';
+        tile.index_name || 'Unknown';
 
     // Layer index
     if (index !== null) {
@@ -834,15 +878,17 @@ function updateTileInfo(tile, totalTiles, index = null) {
 ========================================= */
 
 function openSliderPanel() {
-    document.getElementById('year-slider-panel')
-        .style.transform = 'translateX(0)';
+    const panel = document.getElementById('year-slider-panel');
+    panel.style.display = 'flex';
+    panel.style.transform = 'translateX(0)';
 }
 
 function closeYearSlider() {
 
+    const panel = document.getElementById('year-slider-panel');
+
     // Hide panel
-    document.getElementById('year-slider-panel')
-        .style.transform = 'translateX(-100%)';
+    panel.style.transform = 'translateX(calc(-100% - 30px))';
 
     // Hide sections
     document.getElementById('layer-details').style.display = 'none';
@@ -859,6 +905,12 @@ function closeYearSlider() {
     }
 
     currentDatasetId = null;
+
+    setTimeout(() => {
+        if (!currentDatasetId) {
+            panel.style.display = 'none';
+        }
+    }, 320);
 }
 
   /* =========================================
@@ -895,13 +947,19 @@ function closeYearSlider() {
     }, 800); // speed (ms)
 }
 
-//11Pause Function 
+  /* =========================================
+   📂 11. //Pause Function
+========================================= */
+
 function pauseAnimation() {
     clearInterval(animationInterval);
     isPlaying = false;
 }
 
-//12 Toggle Button
+  /* =========================================
+   📂 12. //Toggle Button
+========================================= */
+
 function toggleAnimation() {
     if (isPlaying) {
         pauseAnimation();
@@ -910,7 +968,9 @@ function toggleAnimation() {
     }
 }
 
-//Click Handler 
+  /* =========================================
+   📂 13. //Click Handler
+========================================= */
 map.on('click', function(e) {
 
     if (!currentDatasetId) return;
@@ -945,7 +1005,9 @@ map.on('click', function(e) {
 
 });
 
-// Time Series Mode Functions
+  /* =========================================
+   📂 14. //Time Series Mode Functions
+========================================= */
 function enableTimeSeriesMode() {
     currentMode = "timeseries";
     document.getElementById('timeseries-btn').style.display = 'none';
@@ -998,7 +1060,9 @@ function selectTimeSeriesPoint(latlng) {
     getTimeSeries();
 }
 
-//FETCH TIME SERIES
+  /* =========================================
+   📂 15. //FETCH TIME SERIES
+========================================= */
 function getTimeSeries() {
 
     if (!selectedPoint || !currentDatasetId) {
@@ -1036,7 +1100,9 @@ function getTimeSeries() {
         });
 }
 
-//Draw chart
+  /* =========================================
+   📂 16. //Draw chart
+========================================= */
 function drawChart(series) {
     
     // Clear previous chart if exists

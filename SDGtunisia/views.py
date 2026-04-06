@@ -158,6 +158,7 @@ def latest_layer_json(request, dataset_id):
 
     return JsonResponse({
         "name": tile.name,
+        "index_name": tile.index_name,
         "dataset": dataset.name,
         "year": tile.year,
         "month": tile.month,
@@ -203,6 +204,7 @@ def dataset_tiles_json(request, dataset_id):
         tiles_data.append({
             "id": tile.id,
             "name": tile.name,
+            "index_name": tile.index_name,
             "year": tile.year,
             "month": tile.month,
             "date_str": f"{tile.year}-{tile.month:02d}",
@@ -226,6 +228,7 @@ def dataset_tiles_json(request, dataset_id):
         "tiles": tiles_data,
         "dataset_info": {
             "name": dataset.name,
+            "index_name": first_tile.index_name if first_tile else None,
             "colormap": dataset.colormap,
             "created_at": dataset.created_at.isoformat(),
             "total_tiles": tiles.count(),
@@ -290,6 +293,8 @@ def upload_view(request):
         zip_file = request.FILES["zipfile"]
         dataset_name = request.POST["dataset"]
         colormap = request.POST["colormap"]
+        sdg = request.POST.get("sdg", "")
+        description = request.POST.get("description", "")
 
         fs = FileSystemStorage(location="media/uploads")
         filename = fs.save(zip_file.name, zip_file)
@@ -297,7 +302,9 @@ def upload_view(request):
 
         config = {
             "dataset": {"name": dataset_name},
-            "visualization": {"colormap": colormap}
+            "visualization": {"colormap": colormap},
+            "sdg": sdg,
+            "description": description
         }
 
         dataset_id = process_zip(file_path, config)

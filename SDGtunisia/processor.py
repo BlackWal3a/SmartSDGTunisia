@@ -64,11 +64,15 @@ def process_zip(zip_path, config):
 
     dataset_name = config["dataset"]["name"]
     cmap_name = config["visualization"]["colormap"]
+    sdg = config.get("sdg", "")
+    description = config.get("description", "")
 
     # ================= CREATE DATASET =================
     dataset = Dataset.objects.create(
         name=dataset_name,
-        colormap=cmap_name
+        colormap=cmap_name,
+        with_sdg=sdg,
+        description=description
     )
 
     BASE = f"media/datasets/{dataset_name}"
