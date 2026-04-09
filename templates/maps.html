@@ -727,6 +727,34 @@
       color: #2a892d;
     }
 
+    /* Custom compare slider divider styling */
+    .leaflet-sbs-divider {
+      cursor: ew-resize !important;
+      width: 10px !important;
+      background: rgba(255, 255, 255, 0.9) !important;
+      border-left: 2px solid rgba(0, 0, 0, 0.15);
+      border-right: 2px solid rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+      z-index: 9999;
+    }
+
+    .leaflet-sbs-divider:hover {
+      cursor: ew-resize !important;
+      background: rgba(255, 255, 255, 1) !important;
+    }
+
+    .leaflet-sbs-divider:before {
+      content: '⟷';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #333;
+      font-size: 14px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
     .analysis-tool-help {
       margin: 0;
       font-size: 13px;
@@ -856,6 +884,60 @@
       height: 100%;
       width: 100%;
       background: rgba(255,255,255,0.1);
+    }
+
+    .compare-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .compare-map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .compare-divider {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 12px;
+      height: 100%;
+      margin-left: -6px;
+      background: rgba(255, 255, 255, 0.95);
+      border-left: 2px solid rgba(0, 0, 0, 0.2);
+      border-right: 2px solid rgba(0, 0, 0, 0.2);
+      cursor: ew-resize;
+      z-index: 3;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.14);
+    }
+
+    .compare-divider::before {
+      content: '⟷';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: #333;
+      pointer-events: none;
+    }
+
+    .compare-divider:hover {
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .compare-map.right-map {
+      clip-path: inset(0 0 0 50%);
     }
 
     /* Target the Leaflet image overlay specifically */
@@ -1361,8 +1443,12 @@
               <i class="fa fa-map"></i>
               <span class="tool-label">Boundaries</span>
             </button>
+            <button type="button" class="btn btn-default btn-round btn-sm analysis-tool-btn" id="compare-tool-btn" onclick="activateCompareTool()">
+              <i class="fa fa-sliders-h"></i>
+              <span class="tool-label">Layer Swipe</span>
+            </button>
           </div>
-          <p class="analysis-tool-help" id="analysis-tool-help">Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history, Boundaries clips a raster to a selected administrative polygon.</p>
+          <p class="analysis-tool-help" id="analysis-tool-help">Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history, Boundaries clips a raster to a selected administrative polygon, and Layer Swipe compares two tiles with a draggable divider.</p>
           <div id="boundary-type-selector" style="display:none; margin-top: 16px;">
             <div style="display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 10px;">
               <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('governorates')">Governorates</button>
@@ -1371,6 +1457,24 @@
               <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('sectors')">Sectors</button>
             </div>
             <button type="button" class="btn btn-default btn-round btn-sm" onclick="clearBoundaryLayer()">Clear boundaries</button>
+          </div>
+          <div id="compare-tool-panel" style="display:none; margin-top: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap: 10px; align-items:flex-end;">
+              <div style="flex: 1; min-width: 150px;">
+                <label for="compare-left-select" style="font-size: 12px; color: #4f4f4f; display: block; margin-bottom: 6px;">Left layer</label>
+                <select id="compare-left-select" class="form-control" onchange="updateCompareTileSelection()"></select>
+              </div>
+              <div style="flex: 1; min-width: 150px;">
+                <label for="compare-right-select" style="font-size: 12px; color: #4f4f4f; display: block; margin-bottom: 6px;">Right layer</label>
+                <select id="compare-right-select" class="form-control" onchange="updateCompareTileSelection()"></select>
+              </div>
+              <div style="display:flex; align-items:flex-end;">
+                <button type="button" class="btn btn-default btn-round btn-sm" id="toggle-compare-btn" onclick="toggleComparison()">Start Swipe</button>
+              </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 12px; color: #6c757d;">
+              Drag the divider on the map left or right to compare the two layers.
+            </div>
           </div>
           <div id="analysis-chart-wrapper" style="display: none; margin-top: 20px;">
             <canvas id="chart"></canvas>
@@ -1383,6 +1487,11 @@
     <!-- Map Container -->
     <div class="map-container">
       <div id="map"></div>
+      <div id="compare-wrapper" class="compare-wrapper" style="display: none;">
+        <div id="left-map" class="compare-map"></div>
+        <div id="right-map" class="compare-map right-map"></div>
+        <div id="compare-divider" class="compare-divider" title="Drag to compare"></div>
+      </div>
       
       <!-- Map Controls -->
       <div class="map-controls">
@@ -1640,6 +1749,16 @@ function switchBaseLayer(key) {
     map.removeLayer(currentBaseTileLayer);
     currentBaseTileLayer = baseLayers[key].addTo(map);
     currentBaseLayerKey = key;
+
+    if (leftMap && leftBaseLayer) {
+        leftMap.removeLayer(leftBaseLayer);
+        leftBaseLayer = getCompareBaseLayer(key, leftMap);
+    }
+    if (rightMap && rightBaseLayer) {
+        rightMap.removeLayer(rightBaseLayer);
+        rightBaseLayer = getCompareBaseLayer(key, rightMap);
+    }
+
     updateBaseMapSelection(key);
     toggleBaseMapMenu(false);
 }
@@ -1684,6 +1803,19 @@ let isPlaying = false;
 let currentMode = "normal"; // normal | timeseries
 let selectedPoint = null;
 let timeSeriesMarker = null;
+let leftMap = null;
+let rightMap = null;
+let leftBaseLayer = null;
+let rightBaseLayer = null;
+let leftMapOverlay = null;
+let rightMapOverlay = null;
+let compareDivider = null;
+let compareWrapper = null;
+let compareSyncing = false;
+let compareDragActive = false;
+let compareDividerPosition = 0.5;
+let isComparisonActive = false;
+let compareTileIndices = { left: null, right: null };
 
 proj4.defs('EPSG:32632', '+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs');
 
@@ -2130,11 +2262,14 @@ function activatePixelTool() {
         return;
     }
 
+    disableComparison();
     clearBoundaryLayer();
     document.getElementById('pixel-tool-btn').classList.add('active');
     document.getElementById('timeseries-tool-btn').classList.remove('active');
     document.getElementById('boundary-tool-btn').classList.remove('active');
+    document.getElementById('compare-tool-btn').classList.remove('active');
     document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('compare-tool-panel').style.display = 'none';
     document.getElementById('analysis-tool-help').textContent = 'Pixel Select is active. Click the map to inspect the exact pixel value for the current tile.';
     document.getElementById('analysis-chart-wrapper').style.display = 'none';
     setMapClickHandler(getPixelValue);
@@ -2146,10 +2281,13 @@ function activateTimeSeriesTool() {
         return;
     }
 
+    disableComparison();
     clearBoundaryLayer();
     document.getElementById('pixel-tool-btn').classList.remove('active');
     document.getElementById('boundary-tool-btn').classList.remove('active');
+    document.getElementById('compare-tool-btn').classList.remove('active');
     document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('compare-tool-panel').style.display = 'none';
     document.getElementById('timeseries-tool-btn').classList.add('active');
     document.getElementById('analysis-tool-help').textContent = 'Time Analysis is active. Click the map to choose a point and load a time series.';
     document.getElementById('analysis-chart-wrapper').style.display = 'block';
@@ -2162,6 +2300,7 @@ function activateBoundaryTool() {
         return;
     }
 
+    disableComparison();
     const boundaryBtn = document.getElementById('boundary-tool-btn');
     if (boundaryBtn.classList.contains('active')) {
         clearBoundaryLayer();
@@ -2171,22 +2310,291 @@ function activateBoundaryTool() {
 
     document.getElementById('pixel-tool-btn').classList.remove('active');
     document.getElementById('timeseries-tool-btn').classList.remove('active');
+    document.getElementById('compare-tool-btn').classList.remove('active');
     boundaryBtn.classList.add('active');
     document.getElementById('boundary-type-selector').style.display = 'block';
+    document.getElementById('compare-tool-panel').style.display = 'none';
     document.getElementById('analysis-tool-help').textContent = 'Boundary analysis is active. Select a boundary type below, then click a polygon to clip the current raster.';
     document.getElementById('analysis-chart-wrapper').style.display = 'none';
     setMapClickHandler(null);
 }
 
+function activateCompareTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Layer Swipe.');
+        return;
+    }
+
+    const compareBtn = document.getElementById('compare-tool-btn');
+    if (compareBtn.classList.contains('active')) {
+        disableComparison();
+        deactivateAnalysisTools();
+        return;
+    }
+
+    disableComparison();
+    clearBoundaryLayer();
+    document.getElementById('pixel-tool-btn').classList.remove('active');
+    document.getElementById('timeseries-tool-btn').classList.remove('active');
+    document.getElementById('boundary-tool-btn').classList.remove('active');
+    compareBtn.classList.add('active');
+    document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('compare-tool-panel').style.display = 'block';
+    document.getElementById('analysis-tool-help').textContent = 'Layer Swipe is active. Choose two tiles and click Start Swipe.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    populateCompareSelectors();
+    setMapClickHandler(null);
+}
+
+function populateCompareSelectors() {
+    const leftSelect = document.getElementById('compare-left-select');
+    const rightSelect = document.getElementById('compare-right-select');
+    leftSelect.innerHTML = '';
+    rightSelect.innerHTML = '';
+
+    const tiles = datasetTiles[currentDatasetId] || [];
+    if (tiles.length === 0) {
+        leftSelect.innerHTML = '<option>No tiles loaded</option>';
+        rightSelect.innerHTML = '<option>No tiles loaded</option>';
+        return;
+    }
+
+    tiles.forEach((tile, index) => {
+        const label = tile.date_str || `Tile ${index + 1}`;
+        const option = `<option value="${index}">${label}</option>`;
+        leftSelect.innerHTML += option;
+        rightSelect.innerHTML += option;
+    });
+
+    leftSelect.value = 0;
+    rightSelect.value = Math.max(0, tiles.length - 1);
+    compareTileIndices.left = parseInt(leftSelect.value, 10);
+    compareTileIndices.right = parseInt(rightSelect.value, 10);
+    updateCompareTileSelection();
+}
+
+function updateCompareTileSelection() {
+    const leftSelect = document.getElementById('compare-left-select');
+    const rightSelect = document.getElementById('compare-right-select');
+    compareTileIndices.left = parseInt(leftSelect.value, 10);
+    compareTileIndices.right = parseInt(rightSelect.value, 10);
+    const compareButton = document.getElementById('toggle-compare-btn');
+    if (compareTileIndices.left === compareTileIndices.right) {
+        compareButton.textContent = 'Choose different tiles';
+        compareButton.disabled = true;
+    } else {
+        compareButton.textContent = isComparisonActive ? 'Stop Swipe' : 'Start Swipe';
+        compareButton.disabled = false;
+    }
+}
+
+function toggleComparison() {
+    if (isComparisonActive) {
+        disableComparison();
+        return;
+    }
+
+    const tiles = datasetTiles[currentDatasetId] || [];
+    const leftTile = tiles[compareTileIndices.left];
+    const rightTile = tiles[compareTileIndices.right];
+
+    if (!leftTile || !rightTile || compareTileIndices.left === compareTileIndices.right) {
+        alert('Please choose two different tiles to compare.');
+        return;
+    }
+
+    enableComparison(leftTile, rightTile);
+}
+
+function getCompareBaseLayer(key, targetMap) {
+    if (!targetMap) return null;
+    if (key === 'osm') {
+        return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(targetMap);
+    }
+    if (key === 'satellite') {
+        return L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri',
+            maxZoom: 19
+        }).addTo(targetMap);
+    }
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; OpenStreetMap',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(targetMap);
+}
+
+function createCompareMaps() {
+    if (leftMap && rightMap) return;
+
+    compareWrapper = document.getElementById('compare-wrapper');
+    compareDivider = document.getElementById('compare-divider');
+
+    leftMap = L.map('left-map', { zoomControl: false, attributionControl: false }).setView(map.getCenter(), map.getZoom());
+    rightMap = L.map('right-map', { zoomControl: false, attributionControl: false }).setView(map.getCenter(), map.getZoom());
+
+    leftBaseLayer = getCompareBaseLayer(currentBaseLayerKey, leftMap);
+    rightBaseLayer = getCompareBaseLayer(currentBaseLayerKey, rightMap);
+
+    leftMap.on('move', () => syncCompareMaps(leftMap, rightMap));
+    rightMap.on('move', () => syncCompareMaps(rightMap, leftMap));
+
+    initCompareDivider();
+    setCompareDividerPosition(compareDividerPosition);
+}
+
+function syncCompareMaps(sourceMap, targetMap) {
+    if (!sourceMap || !targetMap || compareSyncing) return;
+    compareSyncing = true;
+    targetMap.setView(sourceMap.getCenter(), sourceMap.getZoom(), { animate: false });
+    compareSyncing = false;
+}
+
+function setCompareDividerPosition(fraction) {
+    fraction = Math.max(0.08, Math.min(0.92, fraction));
+    compareDividerPosition = fraction;
+    const leftMapNode = document.getElementById('left-map');
+    const rightMapNode = document.getElementById('right-map');
+    const divider = document.getElementById('compare-divider');
+
+    if (!leftMapNode || !rightMapNode || !divider) return;
+    const percent = fraction * 100;
+    divider.style.left = `${percent}%`;
+    leftMapNode.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+    rightMapNode.style.clipPath = `inset(0 0 0 ${percent}%)`;
+}
+
+function initCompareDivider() {
+    if (!compareDivider) {
+        compareDivider = document.getElementById('compare-divider');
+    }
+    if (!compareDivider || compareDivider.dataset.initialized) return;
+    compareDivider.dataset.initialized = 'true';
+
+    compareDivider.addEventListener('pointerdown', function (e) {
+        compareDragActive = true;
+        document.body.style.userSelect = 'none';
+        compareDivider.setPointerCapture(e.pointerId);
+    });
+
+    document.addEventListener('pointermove', function (e) {
+        if (!compareDragActive || !compareWrapper) return;
+        const rect = compareWrapper.getBoundingClientRect();
+        const fraction = (e.clientX - rect.left) / rect.width;
+        setCompareDividerPosition(fraction);
+    });
+
+    document.addEventListener('pointerup', function () {
+        if (!compareDragActive) return;
+        compareDragActive = false;
+        document.body.style.userSelect = '';
+    });
+
+    document.addEventListener('pointercancel', function () {
+        if (!compareDragActive) return;
+        compareDragActive = false;
+        document.body.style.userSelect = '';
+    });
+}
+
+function enableComparison(tile1, tile2) {
+    disableComparison();
+
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+        currentLayer = null;
+    }
+
+    createCompareMaps();
+
+    if (leftMapOverlay) {
+        leftMap.removeLayer(leftMapOverlay);
+        leftMapOverlay = null;
+    }
+    if (rightMapOverlay) {
+        rightMap.removeLayer(rightMapOverlay);
+        rightMapOverlay = null;
+    }
+
+    const leftBounds = [
+        [tile1.extent.bottom, tile1.extent.left],
+        [tile1.extent.top, tile1.extent.right]
+    ];
+    const rightBounds = [
+        [tile2.extent.bottom, tile2.extent.left],
+        [tile2.extent.top, tile2.extent.right]
+    ];
+
+    leftMapOverlay = L.imageOverlay(tile1.image_url, leftBounds).addTo(leftMap);
+    rightMapOverlay = L.imageOverlay(tile2.image_url, rightBounds).addTo(rightMap);
+
+    compareWrapper.style.display = 'block';
+    document.getElementById('map').style.display = 'none';
+    // Focus on Tunisia center with appropriate zoom level
+    leftMap.setView([34.0, 9.0], 7);
+    rightMap.setView([34.0, 9.0], 7);
+    leftMap.invalidateSize();
+    rightMap.invalidateSize();
+    setCompareDividerPosition(0.5);
+
+    isComparisonActive = true;
+    document.getElementById('toggle-compare-btn').textContent = 'Stop Swipe';
+    document.getElementById('analysis-tool-help').textContent = `Comparing ${tile1.date_str || 'left'} and ${tile2.date_str || 'right'}.`;
+}
+
+function disableComparison() {
+    if (!isComparisonActive) {
+        const compareButton = document.getElementById('toggle-compare-btn');
+        if (compareButton) {
+            compareButton.textContent = 'Start Swipe';
+            compareButton.disabled = false;
+        }
+        return;
+    }
+
+    if (leftMapOverlay) {
+        leftMap.removeLayer(leftMapOverlay);
+        leftMapOverlay = null;
+    }
+    if (rightMapOverlay) {
+        rightMap.removeLayer(rightMapOverlay);
+        rightMapOverlay = null;
+    }
+
+    compareWrapper = document.getElementById('compare-wrapper');
+    if (compareWrapper) {
+        compareWrapper.style.display = 'none';
+    }
+    document.getElementById('map').style.display = 'block';
+
+    isComparisonActive = false;
+    const compareButton = document.getElementById('toggle-compare-btn');
+    if (compareButton) {
+        compareButton.textContent = 'Start Swipe';
+        compareButton.disabled = false;
+    }
+    if (currentTile) {
+        renderTile(currentTile);
+    }
+}
+
 function deactivateAnalysisTools() {
+    disableComparison();
+
     const pixelBtn = document.getElementById('pixel-tool-btn');
     const timeseriesBtn = document.getElementById('timeseries-tool-btn');
     const boundaryBtn = document.getElementById('boundary-tool-btn');
+    const compareBtn = document.getElementById('compare-tool-btn');
 
     if (pixelBtn) pixelBtn.classList.remove('active');
     if (timeseriesBtn) timeseriesBtn.classList.remove('active');
     if (boundaryBtn) boundaryBtn.classList.remove('active');
+    if (compareBtn) compareBtn.classList.remove('active');
     document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('compare-tool-panel').style.display = 'none';
     document.getElementById('analysis-tool-help').textContent = 'Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history, Boundaries clips a raster to a selected polygon.';
     document.getElementById('analysis-chart-wrapper').style.display = 'none';
     setMapClickHandler(null);
