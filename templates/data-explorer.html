@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  {% load static %}
+  <meta charset="utf-8" />
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/SmartSDG_Tunisia_Logo.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/SmartSDG_Tunisia_Logo.png' %}">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Data Explorer - SSDG</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+  <!-- CSS Files -->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/paper-kit.css' %}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{% static 'demo/demo.css' %}" rel="stylesheet" />
+</head>
+
+<body class="landing-page sidebar-collapse">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
+    <div class="container">
+      <div class="navbar-translate">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'img/SmartSDG_Tunisia_Logo_white_bg.png' %}" alt="SmartSDG Logo" style="height: 30px; width: auto; margin-right: 10px;">
+          SSDG GIS Platform
+        </a>
+        <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse justify-content-end" id="navigation">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="/" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/about/" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="/maps/" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="/data-explorer/" class="nav-link active">Data Explorer</a>
+          </li>
+          <li class="nav-item">
+            <a href="/methods/" class="nav-link">Methods</a>
+          </li>
+          <li class="nav-item">
+            <a href="/contact/" class="nav-link">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Star on GitHub" data-placement="bottom" href="" target="_blank">
+              <i class="fa fa-github"></i>
+              <p class="d-lg-none">GitHub</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <div class="page-header" data-parallax="true" style="background-image: url('{% static 'img/Map_BG2.jpg' %}')">
+    <div class="filter"></div>
+    <div class="container">
+      <div class="motto text-center">
+        <h1>Data Explorer</h1>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <input type="text" class="form-control" id="filter-input" placeholder="Filter by category (land-use, vegetation, water, climate, biodiversity, urban, fires, soil, boundaries)">
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Dataset</th>
+                  <th>Category</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Land Use / Land Cover -->
+                <tr data-category="land-use">
+                  <td>Landuse/Landcover 2019</td>
+                  <td>Land Use</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="land-use">
+                  <td>Land Cover 2020</td>
+                  <td>Land Use</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="land-use">
+                  <td>Land Use Change (2015-2020)</td>
+                  <td>Land Use</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Vegetation / NDVI -->
+                <tr data-category="vegetation">
+                  <td>NDVI Current</td>
+                  <td>Vegetation</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="vegetation">
+                  <td>NDVI Average</td>
+                  <td>Vegetation</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="vegetation">
+                  <td>Vegetation Health Index</td>
+                  <td>Vegetation</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Water Resources -->
+                <tr data-category="water">
+                  <td>Water Bodies</td>
+                  <td>Water</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="water">
+                  <td>Water Quality Index</td>
+                  <td>Water</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Climate / Weather -->
+                <tr data-category="climate">
+                  <td>Temperature</td>
+                  <td>Climate</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="climate">
+                  <td>SPI (Standardized Precipitation Index)</td>
+                  <td>Climate</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Biodiversity -->
+                <tr data-category="biodiversity">
+                  <td>Protected Areas</td>
+                  <td>Biodiversity</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Human Pressure / Urbanization -->
+                <tr data-category="urban">
+                  <td>Urban Areas</td>
+                  <td>Urban</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Forest Fires -->
+                <tr data-category="fires">
+                  <td>Active Fire Hotspots</td>
+                  <td>Fires</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Soil & Agriculture -->
+                <tr data-category="soil">
+                  <td>Soil Types</td>
+                  <td>Soil</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                
+                <!-- Boundaries / Administrative -->
+                <tr data-category="boundaries">
+                  <td>Delegations</td>
+                  <td>Boundaries</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="boundaries">
+                  <td>Sectors</td>
+                  <td>Boundaries</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+                <tr data-category="boundaries">
+                  <td>Administrative Boundaries</td>
+                  <td>Boundaries</td>
+                  <td>
+                    <a href="/maps/" class="btn btn-brand btn-sm">View on Map</a>
+                    <a href="#" class="btn btn-brand btn-sm">Download</a>
+                    <a href="#" class="btn btn-brand btn-sm">Metadata</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="section text-center">
+      <div class="container">
+        <h2 class="title">Data Sources & Partners</h2>
+        <div class="row">
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/isamm_university_logo.png' %}" alt="ISAMM University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>ISAMM University</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/ministere_enseignement_superieur.png' %}" alt="Ministry of Higher Education" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>Ministry of Higher Education</strong></p>
+          </div>
+          <div class="col-md-4 ml-auto mr-auto text-center">
+            <img src="{% static 'img/mse_university_logo.png' %}" alt="MSE University" class="img-fluid" style="max-height: 80px;">
+            <p class="mt-2"><strong>MSE University</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <footer class="footer   footer-white ">
+    <div class="container">
+      <div class="row">
+        <nav class="footer-nav">
+          <ul>
+            <li>
+              <a href="/maps/">Dashboard</a>
+            </li>
+            <li>
+              <a href="/about/">About</a>
+            </li>
+            <li>
+              <a href="/methods/">Methods</a>
+            </li>
+            <li>
+              <a href="/contact/">Contact</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="credits ml-auto">
+          <span class="copyright">
+            ©
+            <script>
+              document.write(new Date().getFullYear())
+            </script>, University of Manouba
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!--   Core JS Files   -->
+  <script src="{% static 'js/core/jquery.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'js/core/popper.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'js/core/bootstrap.min.js' %}" type="text/javascript"></script>
+  <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+  <script src="{% static 'js/plugins/bootstrap-switch.js' %}"></script>
+  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+  <script src="{% static 'js/plugins/nouislider.min.js' %}" type="text/javascript"></script>
+  <!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+  <script src="{% static 'js/plugins/moment.min.js' %}"></script>
+  <script src="{% static 'js/plugins/bootstrap-datepicker.js' %}" type="text/javascript"></script>
+  <!-- Control Center for Paper Kit: parallax effects, scripts for the example pages etc -->
+  <script src="{% static 'js/paper-kit.js' %}" type="text/javascript"></script>
+  <!--  Google Maps Plugin    -->
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | SmartSDG Tunisia{% endblock %}
+
+{% block content %}
+<div class="page-header section-dark" style="background: linear-gradient(135deg, rgba(2,136,210,0.18), rgba(42,137,45,0.12)); min-height: calc(100vh - 140px); padding-top: 120px; padding-bottom: 120px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-5 col-md-8">
+        <div class="card card-register" style="box-shadow: 0 18px 60px rgba(0,0,0,0.12); border-radius: 18px;">
+          <div class="card-body p-4">
+            <h3 class="card-title text-center mb-2">Welcome back</h3>
+            <p class="text-muted text-center">Sign in to access your SmartSDG dashboard and maps.</p>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
+              {% endif %}
+              <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="form-group">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <button type="submit" class="btn btn-primary btn-block btn-lg">Login</button>
+            </form>
+            <div class="text-center mt-4">
+              <small class="text-muted">Don’t have an account yet? <a href="{% url 'signup' %}">Sign up</a></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

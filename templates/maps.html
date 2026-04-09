@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  {% load static %}
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/SmartSDG_Tunisia_Logo.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/SmartSDG_Tunisia_Logo.png' %}">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Map - SSDG</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  
+  <!-- Fonts and icons -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/paper-kit.css' %}" rel="stylesheet" />
+  <link href="{% static 'demo/demo.css' %}" rel="stylesheet" />
+  
+  <style>
+    /* ============================================
+       LOADING SCREEN
+       ============================================ */
+    
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.8s ease-out;
+    }
+    
+    .loading-screen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-logo {
+      width: 500px;
+      height: auto;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+      }
+    }
+    
+    /* ============================================
+       GLOBAL & LAYOUT STYLES
+       ============================================ */
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Montserrat", "Helvetica", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+      display: flex;
+      height: 100vh;
+      position: relative;
+      padding-top: 0;
+    }
+
+    /* Left Sidebar */
+    .sidebar-icons {
+      width: 100px;
+      height: 100vh;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      border-right: 1px solid rgba(0,0,0,0.1);
+      z-index: 1000;
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.08);
+      overflow-y: auto;
+    }
+    
+    .sidebar-logo {
+      width: 100%;
+      padding: 6px 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
+    
+    .sidebar-logo img {
+      max-width: 80px;
+      height: auto;
+      margin-bottom: 0;
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-logo:hover img {
+      transform: none;
+    }
+
+    /* ============================================
+       ICON STYLES (Consolidated)
+       ============================================ */
+
+    /* Base icon styling - used for SDG icons and dataset items */
+    .icon-button {
+      width: 70px;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0;
+      border-radius: 4px;
+      position: relative;
+      font-size: 14px;
+      padding: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(200, 200, 200, 0.3);
+      background: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .icon-button:active {
+      transform: translateY(0);
+    }
+
+    /* SDG Icon Styles */
+    .sdg-icon {
+      --icon-color: #666;
+      margin: 12px 0 !important;
+      position: relative;
+    }
+
+    .sdg-icon img {
+      width: 56px;
+      height: 56px;
+      border-radius: 2px;
+      object-fit: contain;
+      filter: grayscale(0%);
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    .sdg-icon:hover {
+      cursor: pointer;
+    }
+
+    .sdg-icon:hover img {
+      transform: scale(1.08);
+    }
+
+    .sdg-icon.active img {
+      transform: scale(1.12);
+    }
+
+    .sdg-icon:not(.active) img {
+      filter: grayscale(30%);
+    }
+
+    .sdg-icon.active {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-color: rgba(1, 141, 194, 0.4);
+      box-shadow: 0 4px 16px rgba(1, 141, 194, 0.15);
+    }
+
+    /* Tunisia Icon Styles */
+    .tunisia-icon {
+      margin: 12px 0 !important;
+      cursor: pointer;
+    }
+
+    .tunisia-icon img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+
+    .tunisia-icon:hover img {
+      transform: scale(1.08);
+    }
+
+    /* Head Icon Styles */
+    .head-icon {
+      margin: 12px 0 !important;
+      cursor: pointer;
+    }
+
+    .head-icon img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+
+    .head-icon:hover img {
+      transform: scale(1.08);
+    }
+
+    /* Dataset items under SDG */
+    .dataset-item {
+      color: rgba(20, 20, 20, 0.9);
+    }
+
+    .dataset-item i {
+      font-size: 18px;
+      margin-bottom: 4px;
+      color: rgba(50, 50, 50, 0.8);
+    }
+
+    .dataset-item .dataset-name {
+      font-size: 10px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.1;
+      word-wrap: break-word;
+      max-width: 60px;
+      color: rgba(20, 20, 20, 0.85);
+      letter-spacing: 0.3px;
+    }
+
+    .dataset-item:hover {
+      background-color: rgba(100, 150, 255, 0.08);
+    }
+
+    .dataset-item.active {
+      background-color: rgba(42, 137, 45, 0.95) !important;
+      color: #ffffff !important;
+      border-color: rgba(42, 137, 45, 0.8) !important;
+      box-shadow: 0 4px 16px rgba(42, 137, 45, 0.25);
+    }
+
+    .dataset-item.active i,
+    .dataset-item.active .dataset-name {
+      color: #ffffff !important;
+    }
+
+    /* Consolidated Tooltip Styles */
+    .icon-button .tooltip {
+      visibility: hidden;
+      position: absolute;
+      background-color: #01416d;
+      color: #fff;
+      text-align: center;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 1001;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -32px;
+      opacity: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    
+    .icon-button .tooltip::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      margin-left: -4px;
+      border-width: 0 4px 4px 4px;
+      border-style: solid;
+      border-color: transparent transparent #01416d transparent;
+    }
+
+    .icon-button:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Info Icon Styles */
+    .info-icon {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      font-size: 12px;
+      color: #999;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s ease, color 0.2s ease;
+      z-index: 10;
+    }
+
+    .info-icon:hover {
+      opacity: 1;
+      color: #eaa422;
+    }
+
+    .dataset-item.active .info-icon {
+      color: rgba(255, 255, 255, 0.9) !important;
+      opacity: 0.9;
+    }
+
+    /* ============================================
+       MODAL STYLES
+       ============================================ */
+
+    .dataset-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 4px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+      overflow: hidden;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      background: #ffffff;
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      position: relative;
+      gap: 6px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #4a4a4a;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-close {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      background: transparent;
+      border: 1px solid #ddd;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+      color: #333;
+    }
+
+    /* ============================================
+       ANALYSIS MODAL STYLES
+       ============================================ */
+
+    .analysis-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .analysis-loading {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #018dc2;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .analysis-results {
+      display: none;
+    }
+
+    .analysis-results.show {
+      display: block;
+    }
+
+    .pixel-result {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .pixel-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #01416d;
+      margin: 16px 0;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 2px solid #018dc2;
+    }
+
+    .pixel-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .pixel-meta-item {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+
+    .pixel-meta-label {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .pixel-meta-value {
+      font-size: 14px;
+      color: #01416d;
+      font-weight: 600;
+    }
+
+    .timeseries-result {
+      padding: 20px;
+    }
+
+    .timeseries-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .timeseries-coords {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 8px;
+    }
+
+    .timeseries-chart-container {
+      position: relative;
+      height: 450px;
+      margin: 20px 0;
+    }
+
+    .timeseries-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .stat-item {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #01416d;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .modal-body {
+      padding: 28px;
+    }
+
+    .dataset-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      color: #01416d;
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      color: #01416d;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    /* ============================================
+       LAYER PANEL STYLES
+       ============================================ */
+
+    .layer-panel {
+      width: 380px;
+      max-width: 90vw;
+      height: calc(100vh - 40px);
+      background: rgba(255, 255, 255, 0.98);
+      position: fixed;
+      left: 110px;
+      top: 20px;
+      border-radius: 4px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      transform: translateX(calc(-100% - 30px));
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .panel-header {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      background: #ffffff;
+      color: #333333;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .panel-header h4 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #4a4a4a;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-header p {
+      margin: 0;
+      font-size: 13px;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .panel-subnav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-bottom: 1px solid #eaeaea;
+      background: #fafafa;
+    }
+
+    .panel-tab {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #01416d;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .panel-tab.active,
+    .panel-tab:hover {
+      background: #ffffff;
+      border-color: #018dc2;
+      color: #01416d;
+      box-shadow: 0 0 0 1px rgba(1, 141, 194, 0.15);
+    }
+
+    .panel-tab-content {
+      display: none;
+    }
+
+    .analysis-tools {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .analysis-tool-btn {
+      width: calc(50% - 12px);
+      max-width: 180px;
+      min-width: 140px;
+      height: 90px;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 4px !important;
+      border: 1px solid rgba(150, 150, 150, 0.25);
+      background: #ffffff;
+      color: #444444;
+      text-align: center;
+      transition: all 0.2s ease;
+      font-size: 12px;
+    }
+
+    .analysis-tool-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(1, 141, 194, 0.4);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.09);
+    }
+
+    .analysis-tool-btn i {
+      font-size: 22px;
+      color: #018dc2;
+    }
+
+    .analysis-tool-btn .tool-label {
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 600;
+    }
+
+    .analysis-tools .btn.active,
+    .analysis-tools .btn.active i {
+      border-color: #2a892d !important;
+      background-color: rgba(42, 137, 45, 0.08) !important;
+      color: #2a892d !important;
+    }
+
+    .analysis-tool-btn.active i {
+      color: #2a892d;
+    }
+
+    .analysis-tool-help {
+      margin: 0;
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.5;
+    }
+
+    .analysis-chart-wrapper {
+      width: 100%;
+    }
+
+    .panel-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .panel-info-icon {
+      transition: color 0.2s ease;
+    }
+
+    .panel-info-icon:hover {
+      color: #eaa422 !important;
+    }
+
+    .layer-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .layer-panel {
+      font-size: 14px;
+    }
+
+    .layer-panel button {
+      font-family: inherit;
+    }
+
+    .year-slider-container {
+      padding: 20px;
+      text-align: center;
+      background: rgba(248, 249, 250, 0.5);
+      border-radius: 4px;
+      border: 1px solid #e9ecef;
+    }
+
+    .year-display {
+      font-size: 32px;
+      font-weight: 700;
+      color: #018dc2;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 4px;
+      border: 1px solid #018dc2;
+    }
+    
+    .year-slider {
+      width: 100%;
+      height: 7px;
+      border-radius: 4px;
+      background: linear-gradient(to right, #ddd 0%, #ddd 100%);
+      outline: none;
+      margin: 20px 0 15px 0;
+      cursor: pointer;
+    }
+    
+    .year-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #018dc2, #01416d);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(1, 141, 194, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .year-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(1, 141, 194, 0.6);
+    }
+    
+    .year-slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #018dc2, #01416d);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(1, 141, 194, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .year-slider::-moz-range-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(1, 141, 194, 0.6);
+    }
+    
+    .year-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #01416d;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    #chart {
+      display: none;
+      width: 100% !important;
+      height: 220px !important;
+      margin-top: 15px;
+    }
+
+    /* ============================================
+       MAP CONTAINER & CONTROLS
+       ============================================ */
+
+    .map-container {
+      flex: 1;
+      position: relative;
+      background: url("{% static '' %}") center/cover;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Target the Leaflet image overlay specifically */
+    .leaflet-image-layer {
+      image-rendering: pixelated;
+      transition: opacity 0.2s;
+    }
+
+    /* Default map cursor */
+    .leaflet-container {
+      cursor: grab !important;
+    }
+
+    .leaflet-container.leaflet-dragging {
+      cursor: grabbing !important;
+    }
+
+    /* Map Controls Container */
+    .map-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Control Button Base */
+    .map-control,
+    .nav-menu-btn {
+      width: 40px;
+      height: 40px;
+      background-color: #ffffff;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    .map-control:hover,
+    .nav-menu-btn:hover {
+      background-color: #018dc2;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(1, 141, 194, 0.3);
+    }
+
+    .map-control:active,
+    .nav-menu-btn:active {
+      transform: translateY(0);
+    }
+
+    .base-map-selector {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .base-map-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 52px;
+      min-width: 180px;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 4px;
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+      z-index: 1002;
+      flex-direction: column;
+      padding: 6px 0;
+    }
+
+    .base-map-menu.open {
+      display: flex;
+    }
+
+    .base-map-option {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: #666;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .base-map-option:hover {
+      background: rgba(61, 61, 61, 0.08);
+    }
+
+    .base-map-option.active {
+      background: rgba(61, 61, 61, 0.08);
+      color: #000000;
+    }
+
+    .boundaries-option {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: #666;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .boundaries-option:hover {
+      background: rgba(61, 61, 61, 0.08);
+    }
+
+    
+    /* ============================================
+       BUTTON STYLES (Generic)
+       ============================================ */
+
+    .btn {
+      font-family: inherit;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-size: 13px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-info {
+      background-color: #018dc2;
+      color: #ffffff;
+    }
+
+    .btn-info:hover {
+      background-color: #01416d;
+    }
+
+    .btn-success {
+      background-color: #2a892d;
+      color: #ffffff;
+    }
+
+    .btn-success:hover {
+      background-color: #1d5f20;
+    }
+
+    .btn-default {
+      background-color: #ecf0f1;
+      color: #333;
+    }
+
+    .btn-default:hover {
+      background-color: #d5dbde;
+    }
+
+    .btn-round {
+      border-radius: 4px;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* ============================================
+       FORM CONTROLS
+       ============================================ */
+
+    .form-check-input.toggle-switch {
+      width: 3rem;
+      height: 1.5rem;
+      background-color: #dee2e6;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      position: relative;
+      outline: none;
+      display: block;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .form-check-input.toggle-switch:checked {
+      background-color: #2a892d;
+      border-color: #2a892d;
+    }
+
+    .form-check-input.toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 1.2rem;
+      height: 1.2rem;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .form-check-input.toggle-switch:checked::after {
+      transform: translateX(1.5rem);
+    }
+
+    .form-switch {
+      padding-left: 0;
+      margin: 0;
+    }
+
+    /* ============================================
+       DATASET SELECTION PANEL
+       ============================================ */
+
+    .dataset-panel {
+      width: 380px;
+      max-width: 90vw;
+      height: calc(100vh - 40px);
+      background: rgba(255, 255, 255, 0.98);
+      position: fixed;
+      left: 110px;
+      top: 20px;
+      border-radius: 4px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      transform: translateX(calc(-100% - 30px));
+      z-index: 998;
+      display: none;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .dataset-panel.open {
+      transform: translateX(0);
+      display: flex;
+    }
+
+    .dataset-panel-header {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      background: #ffffff;
+      color: #333333;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .dataset-panel-header h4 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #4a4a4a;
+      letter-spacing: -0.02em;
+    }
+
+    .dataset-panel-header p {
+      margin: 0;
+      font-size: 13px;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .dataset-panel-close {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: transparent;
+      border: 1px solid #ddd;
+      font-size: 20px;
+      cursor: pointer;
+      color: #666;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .dataset-panel-close:hover {
+      background: #f5f5f500;
+      color: rgb(0, 0, 0);
+      border-color: rgb(0, 0, 0);
+    }
+
+    .dataset-panel-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dataset-panel-item {
+      background-color: #ffffff;
+      border-radius: 4px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dataset-panel-item:hover {
+      background-color: #f9f9f9;
+      border-color: #018dc2;
+      transform: translateX(2px);
+    }
+
+    .dataset-panel-item.active {
+      background-color: #ffffff;
+      border-color: #2a892d;
+      border-width: 2px;
+    }
+
+    .dataset-panel-item-info {
+      flex: 1;
+    }
+
+    .dataset-panel-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #01416d;
+      margin-bottom: 4px;
+    }
+
+    .dataset-panel-item-meta {
+      font-size: 12px;
+      color: #018dc2;
+    }
+
+    .dataset-panel-item-icon {
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid #018dc2;
+      color: #018dc2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      padding: 0;
+    }
+
+    .dataset-panel-item-icon::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #018dc2;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .dataset-panel-item-icon.active {
+      border-color: #2a892d;
+      background: rgba(42, 137, 45, 0.08);
+    }
+
+    .dataset-panel-item-icon.active::after {
+      transform: translateX(20px);
+      background: #2a892d;
+    }
+
+    .dataset-panel-item-icon:hover {
+      background: rgba(1, 141, 194, 0.08);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <img src="{% static 'img/SmartSDG_Orginal_Logo.png' %}" alt="SmartSDG Tunisia" class="loading-logo">
+  </div>
+  <!-- Main Dashboard Container -->
+  <div class="dashboard-container">
+    <!-- Left Sidebar with Icons -->
+    <div class="sidebar-icons">
+      <div class="sidebar-logo">
+        <img src="{% static 'img/SmartSDG_Tunisia_Logo.png' %}" alt="Logo">
+      </div>
+      
+      <!-- SDG Icons -->
+      <div id="sdg-icons-container">
+        {% for sdg_number, sdg_data in sdg_groups.items %}
+          <div class="sdg-icon" data-sdg="{{ sdg_number }}" onclick="toggleSDG('{{ sdg_number }}')" title="SDG {{ sdg_number }}">
+            {% if sdg_number == '1' %}
+              <img src="{% static 'img/sgds/sdg_1.jpg' %}" alt="SDG {{ sdg_number }}">
+            {% elif sdg_number == '2' %}
+              <img src="{% static 'img/sgds/sdg_2.png' %}" alt="SDG {{ sdg_number }}">
+            {% elif sdg_number == '6' %}
+              <img src="{% static 'img/sgds/sdg_6.png' %}" alt="SDG {{ sdg_number }}">
+            {% elif sdg_number == '11' %}
+              <img src="{% static 'img/sgds/sdg_11.png' %}" alt="SDG {{ sdg_number }}">
+            {% elif sdg_number == '13' %}
+              <img src="{% static 'img/sgds/sdg_13.webp' %}" alt="SDG {{ sdg_number }}">
+            {% elif sdg_number == '15' %}
+              <img src="{% static 'img/sgds/sdg_15.png' %}" alt="SDG {{ sdg_number }}">
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Head Icon -->
+      <div class="head-icon" onclick="toggleHead()" title="User Profile">
+        <img src="{% static 'img/faces/head.png' %}" alt="Head">
+      </div>
+    </div>
+
+    <!-- Dataset Selection Panel -->
+    <div class="dataset-panel" id="dataset-panel">
+      <div class="dataset-panel-header">
+        <h4 id="sdg-panel-title">Datasets</h4>
+        <p id="dataset-panel-subtitle">Choose a dataset from the list below</p>
+        <button class="dataset-panel-close" onclick="closeDatasetPanel()">&times;</button>
+      </div>
+      <div class="dataset-panel-list" id="dataset-panel-list">
+        <!-- Datasets will be populated here by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Layer Details Panel -->
+    <div class="layer-panel" id="year-slider-panel">
+      <div class="panel-header">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h4 id="dataset-title" style="margin: 0;">Select Dataset</h4>
+              <i class="fa fa-info-circle panel-info-icon" id="panel-info-icon" onclick="showCurrentDatasetDetails()" title="Dataset Details" style="display: none; cursor: pointer; font-size: 18px; color: #666; transition: color 0.2s ease;"></i>
+            </div>
+            <p id="dataset-description">Click a dataset to view details</p>
+          </div>
+          <button class="dataset-panel-close" onclick="closeYearSlider()">&times;</button>
+        </div>
+      </div>
+
+      <div class="panel-subnav">
+        <button class="panel-tab active" id="legend-tab-btn" onclick="showLayerPanelTab('legend')">Legend</button>
+        <button class="panel-tab" id="analysis-tab-btn" onclick="showLayerPanelTab('analysis')">Analysis</button>
+      </div>
+
+      <div class="layer-list">
+        <div class="panel-tab-content" id="legend-tab">
+          <div class="year-slider-container" id="year-slider-container" style="display: none;">
+            <div class="year-display" id="year-display">Loading...</div>
+            <input type="range" class="year-slider" id="year-slider" min="0" max="0" value="0" oninput="updateYear()">
+            <div class="year-info">
+              <span id="year-min">-</span>
+              <span id="year-max">-</span>
+            </div>
+            <button type="button" class="btn btn-info btn-round btn-sm" onclick="toggleAnimation()">Play / Pause</button>
+          </div>
+        </div>
+
+        <div class="panel-tab-content" id="analysis-tab" style="display: none;">
+          <div class="analysis-tools">
+            <button type="button" class="btn btn-default btn-round btn-sm analysis-tool-btn" id="pixel-tool-btn" onclick="activatePixelTool()">
+              <i class="fa fa-crosshairs"></i>
+              <span class="tool-label">Pixel</span>
+            </button>
+            <button type="button" class="btn btn-default btn-round btn-sm analysis-tool-btn" id="timeseries-tool-btn" onclick="activateTimeSeriesTool()">
+              <i class="fa fa-chart-line"></i>
+              <span class="tool-label">Time</span>
+            </button>
+            <button type="button" class="btn btn-default btn-round btn-sm analysis-tool-btn" id="boundary-tool-btn" onclick="activateBoundaryTool()">
+              <i class="fa fa-map"></i>
+              <span class="tool-label">Boundaries</span>
+            </button>
+          </div>
+          <p class="analysis-tool-help" id="analysis-tool-help">Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history, Boundaries clips a raster to a selected administrative polygon.</p>
+          <div id="boundary-type-selector" style="display:none; margin-top: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 10px;">
+              <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('governorates')">Governorates</button>
+              <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('delegations')">Delegations</button>
+              <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('municipalities')">Municipalities</button>
+              <button type="button" class="btn btn-default btn-round btn-sm" onclick="loadBoundaryLayer('sectors')">Sectors</button>
+            </div>
+            <button type="button" class="btn btn-default btn-round btn-sm" onclick="clearBoundaryLayer()">Clear boundaries</button>
+          </div>
+          <div id="analysis-chart-wrapper" style="display: none; margin-top: 20px;">
+            <canvas id="chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </div>
+
+    <!-- Map Container -->
+    <div class="map-container">
+      <div id="map"></div>
+      
+      <!-- Map Controls -->
+      <div class="map-controls">
+        <button class="map-control" title="Zoom In">
+          <i class="fa fa-plus"></i>
+        </button>
+        <button class="map-control" title="Zoom Out">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button class="map-control" title="My Location">
+          <i class="fa fa-location-arrow"></i>
+        </button>
+        <button class="map-control" title="Measure Distance">
+          <i class="fa fa-arrows-h"></i>
+        </button>
+        <button class="map-control" title="Fullscreen">
+          <i class="fa fa-expand"></i>
+        </button>
+        <div class="base-map-selector">
+          <button class="map-control" title="Base Map Layers" onclick="toggleBaseMapMenu()">
+            <i class="fa fa-layer-group"></i>
+          </button>
+          <div class="base-map-menu" id="baseMapMenu">
+            <button class="base-map-option active" data-base="cartoDB" onclick="switchBaseLayer('cartoDB')">CartoDB Positron</button>
+            <button class="base-map-option" data-base="osm" onclick="switchBaseLayer('osm')">OpenStreetMap</button>
+            <button class="base-map-option" data-base="satellite" onclick="switchBaseLayer('satellite')">Satellite</button>
+          </div>
+        </div>
+        <a href="{% url 'upload' %}" class="map-control" title="Upload Dataset">
+          <i class="fa fa-upload"></i>
+        </a>
+        <button class="nav-menu-btn" title="Navigation Menu">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dataset Details Modal -->
+    <div class="dataset-modal" id="datasetModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Dataset Details</h3>
+          <button class="modal-close" onclick="closeDatasetModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="dataset-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Dataset Name</span>
+              <span class="detail-value" id="modal-detail-name">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Colormap</span>
+              <span class="detail-value" id="modal-detail-colormap">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Tiles</span>
+              <span class="detail-value" id="modal-detail-periods">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Tile Size</span>
+              <span class="detail-value" id="modal-detail-size">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Value Range</span>
+              <span class="detail-value" id="modal-detail-range">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Created</span>
+              <span class="detail-value" id="modal-detail-created">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis Results Modal -->
+    <div class="analysis-modal" id="analysisModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="analysis-modal-title">Analysis Results</h3>
+          <button class="modal-close" onclick="closeAnalysisModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="analysis-loading" class="analysis-loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading analysis data...</p>
+          </div>
+          <div id="analysis-results" class="analysis-results">
+            <!-- Results will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Proj4js for coordinate transformation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.js"></script>
+  
+<script>
+/* =========================================
+   🎬 LOADING SCREEN SCRIPT
+========================================= */
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    loadingScreen.classList.add('fade-out');
+    
+    // Remove from DOM after fade completes
+    setTimeout(function() {
+      loadingScreen.style.display = 'none';
+    }, 800);
+  }, 1500);
+});
+
+/* =========================================
+   📊 SDG DATA (from Django template)
+========================================= */
+const sdgGroupsData = {
+  {% for sdg_number, sdg_data in sdg_groups.items %}
+    '{{ sdg_number }}': {
+      datasets: [
+        {% for dataset in sdg_data.datasets %}
+          {
+            id: {{ dataset.id }},
+            name: '{{ dataset.name }}',
+            index_name: '{{ dataset.index_name|default:dataset.name }}'
+          },
+        {% endfor %}
+      ]
+    },
+  {% endfor %}
+};
+
+/* =========================================
+   🎯 SDG TOGGLE FUNCTIONALITY
+========================================= */
+
+function toggleSDG(sdgNumber) {
+    const sdgIcon = document.querySelector(`[data-sdg="${sdgNumber}"]`);
+    const allSdgIcons = document.querySelectorAll('.sdg-icon');
+    const isActive = sdgIcon.classList.contains('active');
+    
+    if (isActive) {
+        // Deselect: remove active state
+        allSdgIcons.forEach(icon => {
+            icon.classList.remove('active');
+        });
+        // Close dataset panel
+        closeDatasetPanel();
+    } else {
+        // Select this SDG
+        allSdgIcons.forEach(icon => {
+            icon.classList.remove('active');
+        });
+        sdgIcon.classList.add('active');
+        
+        // Open dataset panel with this SDG's datasets
+        openDatasetPanel(sdgNumber);
+    }
+}
+
+/* =========================================
+   🏛️ TUNISIA & HEAD ICON FUNCTIONS
+========================================= */
+
+function toggleTunisia() {
+    // Placeholder function - will be implemented later
+    console.log('Tunisia icon clicked - functionality to be implemented');
+}
+
+function toggleHead() {
+    // Placeholder function - will be implemented later
+    console.log('Head icon clicked - functionality to be implemented');
+}
+
+function openDatasetPanel(sdgNumber) {
+    const panel = document.getElementById('dataset-panel');
+    const panelTitle = document.getElementById('sdg-panel-title');
+    const panelList = document.getElementById('dataset-panel-list');
+    
+    // Set title
+    panelTitle.textContent = `SDG ${sdgNumber} Datasets`;
+    
+    // Get datasets for this SDG
+    const datasets = sdgGroupsData[sdgNumber]?.datasets || [];
+    
+    // Clear and populate list
+    panelList.innerHTML = '';
+    
+    if (datasets.length === 0) {
+        panelList.innerHTML = '<div style="padding: 20px; text-align: center; color: #000000;">No datasets available</div>';
+    } else {
+        datasets.forEach(dataset => {
+            const item = document.createElement('div');
+            item.className = 'dataset-panel-item';
+            item.dataset.datasetId = dataset.id;
+            item.innerHTML = `
+                <div class="dataset-panel-item-info">
+                    <div class="dataset-panel-item-name">${dataset.name}</div>
+                    <div class="dataset-panel-item-meta">${dataset.index_name}</div>
+                </div>
+                <div class="dataset-panel-item-icon" onclick="loadLayer(${dataset.id})" title="Toggle dataset"></div>
+            `;
+            panelList.appendChild(item);
+        });
+    }
+    
+    // Show panel
+    panel.classList.add('open');
+}
+
+function closeDatasetPanel() {
+    const panel = document.getElementById('dataset-panel');
+    const sdgIcons = document.querySelectorAll('.sdg-icon');
+    panel.classList.remove('open');
+    sdgIcons.forEach(icon => icon.classList.remove('active'));
+}
+
+/* =========================================
+   🗺️ 1. MAP INITIALIZATION
+========================================= */
+
+// Initialize map centered on Tunisia
+const map = L.map('map', {
+    zoomControl: false
+}).setView([34, 9], 6);
+
+const baseLayers = {
+    cartoDB: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; OpenStreetMap',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }),
+    osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }),
+    satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 19
+    })
+};
+
+let currentBaseLayerKey = 'cartoDB';
+let currentBaseTileLayer = baseLayers[currentBaseLayerKey].addTo(map);
+
+function switchBaseLayer(key) {
+    if (!baseLayers[key] || currentBaseLayerKey === key) {
+        toggleBaseMapMenu(false);
+        return;
+    }
+    map.removeLayer(currentBaseTileLayer);
+    currentBaseTileLayer = baseLayers[key].addTo(map);
+    currentBaseLayerKey = key;
+    updateBaseMapSelection(key);
+    toggleBaseMapMenu(false);
+}
+
+function updateBaseMapSelection(key) {
+    document.querySelectorAll('.base-map-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.base === key);
+    });
+}
+
+function toggleBaseMapMenu(forceOpen = null) {
+    const menu = document.getElementById('baseMapMenu');
+    const shouldOpen = forceOpen === null ? !menu.classList.contains('open') : forceOpen;
+    menu.classList.toggle('open', shouldOpen);
+}
+
+
+
+document.addEventListener('click', function(event) {
+    const selector = document.querySelector('.base-map-selector');
+    const menu = document.getElementById('baseMapMenu');
+    if (menu && selector && !selector.contains(event.target)) {
+        menu.classList.remove('open');
+    }
+});
+
+
+/* =========================================
+   🧠 2. GLOBAL STATE
+========================================= */
+
+let currentLayer = null;        // Currently displayed raster layer
+let datasetTiles = {};          // Store tiles per dataset (cached)
+let currentDatasetId = null;    // Active dataset ID
+let currentTile = null;         // Active tile for boundary clipping
+let currentBoundaryLayer = null;
+let currentBoundaryType = null;
+let selectedBoundaryLayer = null;
+let selectedBoundaryId = null;
+let animationInterval = null;
+let isPlaying = false;
+let currentMode = "normal"; // normal | timeseries
+let selectedPoint = null;
+let timeSeriesMarker = null;
+
+proj4.defs('EPSG:32632', '+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs');
+
+const boundaryConfig = {
+    governorates: {
+        label: 'Governorates',
+        file: '{% static "data/Tun_Governorates/Tun_Governorates.geojson" %}',
+        idField: 'C_GOUV',
+        sourceCrs: 'EPSG:32632',
+        style: {
+            color: '#0066cc',
+            weight: 2,
+            fillColor: '#4da6ff',
+            fillOpacity: 0.15
+        },
+        highlightStyle: {
+            color: '#003366',
+            weight: 3,
+            fillColor: '#80b3ff',
+            fillOpacity: 0.35
+        }
+    },
+    delegations: {
+        label: 'Delegations',
+        file: '{% static "data/Tun_Delegations/Tun_Delegations.geojson" %}',
+        idField: 'C_DEL',
+        sourceCrs: 'EPSG:32632',
+        style: {
+            color: '#28a745',
+            weight: 2,
+            fillColor: '#8fd19e',
+            fillOpacity: 0.15
+        },
+        highlightStyle: {
+            color: '#19692d',
+            weight: 3,
+            fillColor: '#b3e6ba',
+            fillOpacity: 0.35
+        }
+    },
+    municipalities: {
+        label: 'Municipalities',
+        file: '{% static "data/Tun_Municipalities/Tun_Municipalities.geojson" %}',
+        idField: 'ref:tn:cod',
+        sourceCrs: 'EPSG:4326',
+        style: {
+            color: '#ff8800',
+            weight: 2,
+            fillColor: '#ffbf80',
+            fillOpacity: 0.15
+        },
+        highlightStyle: {
+            color: '#b35900',
+            weight: 3,
+            fillColor: '#ffd9b3',
+            fillOpacity: 0.35
+        }
+    },
+    sectors: {
+        label: 'Sectors',
+        file: '{% static "data/Tun_Sectors/Tun_Sectors.geojson" %}',
+        idField: 'CODE_INS_S',
+        sourceCrs: 'EPSG:32632',
+        style: {
+            color: '#6f42c1',
+            weight: 2,
+            fillColor: '#c8b3eb',
+            fillOpacity: 0.15
+        },
+        highlightStyle: {
+            color: '#381f6b',
+            weight: 3,
+            fillColor: '#dac4f8',
+            fillOpacity: 0.35
+        }
+    }
+};
+
+function reprojectGeoJSON(geojson, sourceCrs) {
+    if (!sourceCrs || sourceCrs === 'EPSG:4326') {
+        return geojson;
+    }
+
+    const transformer = proj4(sourceCrs, 'EPSG:4326');
+
+    function reprojectCoordinates(coords) {
+        if (typeof coords[0] === 'number') {
+            const [x, y, z] = coords;
+            const [lng, lat] = transformer.forward([x, y]);
+            return z !== undefined ? [lng, lat, z] : [lng, lat];
+        }
+
+        return coords.map(reprojectCoordinates);
+    }
+
+    const cloned = JSON.parse(JSON.stringify(geojson));
+
+    cloned.features = cloned.features.map(feature => {
+        feature.geometry.coordinates = reprojectCoordinates(feature.geometry.coordinates);
+        return feature;
+    });
+
+    return cloned;
+}
+
+function clearBoundarySelection() {
+    if (selectedBoundaryLayer && currentBoundaryLayer) {
+        currentBoundaryLayer.resetStyle(selectedBoundaryLayer);
+    }
+    selectedBoundaryLayer = null;
+    selectedBoundaryId = null;
+}
+
+function clearBoundaryLayer() {
+    clearBoundarySelection();
+    if (currentBoundaryLayer) {
+        map.removeLayer(currentBoundaryLayer);
+        currentBoundaryLayer = null;
+    }
+    currentBoundaryType = null;
+}
+
+function loadBoundaryLayer(boundaryType) {
+    if (!boundaryConfig[boundaryType]) {
+        alert('Unknown boundary type: ' + boundaryType);
+        return;
+    }
+
+    const config = boundaryConfig[boundaryType];
+    currentBoundaryType = boundaryType;
+
+    if (currentBoundaryLayer) {
+        map.removeLayer(currentBoundaryLayer);
+        currentBoundaryLayer = null;
+    }
+
+    fetch(config.file)
+        .then(res => res.json())
+        .then(rawGeojson => {
+            clearBoundarySelection();
+
+            const geojson = reprojectGeoJSON(rawGeojson, config.sourceCrs);
+
+            currentBoundaryLayer = L.geoJSON(geojson, {
+                style: config.style,
+                onEachFeature: function(feature, layer) {
+                    layer.on({
+                        click: function() {
+                            onBoundaryFeatureClick(feature, layer, boundaryType);
+                        }
+                    });
+                }
+            }).addTo(map);
+
+            if (currentBoundaryLayer.getBounds().isValid()) {
+                map.fitBounds(currentBoundaryLayer.getBounds(), {padding: [20, 20]});
+            }
+        })
+        .catch(err => {
+            console.error('Boundary load failed', err);
+            alert('Failed to load boundary layer.');
+        });
+}
+
+function onBoundaryFeatureClick(feature, layer, boundaryType) {
+    if (!currentTile) {
+        alert('Select a raster dataset and tile first before choosing a boundary polygon.');
+        return;
+    }
+
+    clearBoundarySelection();
+
+    selectedBoundaryLayer = layer;
+    selectedBoundaryId = feature.properties?.[boundaryConfig[boundaryType].idField];
+
+    if (!selectedBoundaryId) {
+        alert('Selected feature is missing the expected ID field.');
+        return;
+    }
+
+    layer.setStyle(boundaryConfig[boundaryType].highlightStyle);
+
+    showAnalysisModal('Boundary Clip Analysis', 'loading');
+
+    fetch('/api/clip-boundary/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            tile_id: currentTile.id,
+            boundary_type: boundaryType,
+            polygon_id: selectedBoundaryId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            showAnalysisModal('Boundary Clip Analysis', 'error', data.error);
+            return;
+        }
+
+        showBoundaryResult(data, boundaryType, selectedBoundaryId);
+    })
+    .catch(err => {
+        console.error(err);
+        showAnalysisModal('Boundary Clip Analysis', 'error', 'Server error while clipping raster.');
+    });
+}
+
+function showBoundaryResult(result, boundaryType, polygonId) {
+    const resultsDiv = document.getElementById('analysis-results');
+    const loadingDiv = document.getElementById('analysis-loading');
+
+    loadingDiv.style.display = 'none';
+    resultsDiv.innerHTML = `
+        <div class="timeseries-result">
+            <div class="timeseries-header">
+                <div class="timeseries-coords">Boundary: ${boundaryConfig[boundaryType].label} / ${polygonId}</div>
+                <h4 style="margin: 8px 0; color: #01416d;">Clipped Raster Statistics</h4>
+            </div>
+            <div class="timeseries-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${result.min.toFixed(4)}</div>
+                    <div class="stat-label">Min</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${result.max.toFixed(4)}</div>
+                    <div class="stat-label">Max</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${result.mean.toFixed(4)}</div>
+                    <div class="stat-label">Mean</div>
+                </div>
+            </div>
+        </div>
+    `;
+    resultsDiv.style.display = 'block';
+    resultsDiv.classList.add('show');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+/* =========================================
+   📡 3. FETCH DATASET TILES (BACKEND)
+========================================= */
+
+function fetchDatasetTiles(id) {
+    return fetch(`/api/dataset/${id}/tiles/`)
+        .then(res => res.json());
+}
+
+
+/* =========================================
+   🎨 DATASET SELECTION (MAIN ENTRY POINT)
+========================================= */
+
+function loadLayer(id) {
+
+    // Close dataset panel and show layer panel
+    closeDatasetPanel();
+
+    // Highlight selected dataset in panel (if visible)
+    document.querySelectorAll('.dataset-panel-item')
+        .forEach(btn => btn.classList.remove('active'));
+    
+    const selectedItem = document.querySelector(`[data-dataset-id="${id}"]`);
+    if (selectedItem) {
+        selectedItem.classList.add('active');
+    }
+
+    currentDatasetId = id;
+
+    // Fetch dataset
+    fetchDatasetTiles(id)
+        .then(data => {
+
+            if (data.error || data.tiles.length === 0) {
+                alert("No data found");
+                return;
+            }
+
+            // Cache dataset tiles
+            datasetTiles[id] = data.tiles;
+
+            // Update UI panels
+            updateDatasetPanel(data.dataset_info, data.tiles);
+
+            // Setup slider
+            setupSlider(data.tiles);
+
+            // Show layer panel
+            openSliderPanel();
+
+            // Load latest tile
+            const latestTile = data.tiles[data.tiles.length - 1];
+            renderTile(latestTile);
+            updateTileInfo(latestTile, data.tiles.length);
+
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Error loading dataset");
+        });
+}
+
+
+/* =========================================
+   🧾 5. UPDATE DATASET INFO PANEL
+========================================= */
+
+function updateDatasetPanel(info, tiles) {
+
+    document.getElementById('dataset-title').textContent =
+        info.name || 'Dataset';
+
+    document.getElementById('dataset-description').textContent =
+        `${tiles.length} time periods available`;
+
+    // Show the info icon in the panel header
+    document.getElementById('panel-info-icon').style.display = 'block';
+}
+
+
+/* =========================================
+   🎚️ 6. SLIDER SETUP
+========================================= */
+
+function setupSlider(tiles) {
+
+    const slider = document.getElementById('year-slider');
+    const yearMin = document.getElementById('year-min');
+    const yearMax = document.getElementById('year-max');
+
+    // Configure slider
+    slider.max = tiles.length - 1;
+    slider.value = tiles.length - 1; // latest
+
+    // Set range labels
+    yearMin.textContent = tiles[0].date_str;
+    yearMax.textContent = tiles[tiles.length - 1].date_str;
+
+    // On slider move
+    slider.oninput = () => {
+        const index = parseInt(slider.value);
+        const tile = tiles[index];
+
+        renderTile(tile);
+        updateTileInfo(tile, tiles.length, index);
+    };
+
+    // Show slider
+    document.getElementById('year-slider-container').style.display = 'block';
+}
+
+
+/* =========================================
+   🗺️ 7. RENDER TILE ON MAP
+========================================= */
+
+function renderTile(tile) {
+    currentTile = tile;
+
+    // Remove previous layer
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+    }
+
+    // Leaflet bounds
+    const bounds = [
+        [tile.extent.bottom, tile.extent.left],
+        [tile.extent.top, tile.extent.right]
+    ];
+
+    // Add image overlay
+    currentLayer = L.imageOverlay(tile.image_url, bounds).addTo(map);
+
+    // Fit map to layer
+    map.fitBounds(bounds);
+}
+
+
+/* =========================================
+   📊 8. UPDATE TILE INFO (WHEN SLIDER MOVES)
+========================================= */
+
+function updateTileInfo(tile, totalTiles, index = null) {
+
+    // Date display
+    document.getElementById('year-display').textContent =
+        tile.date_str;
+}
+
+
+/* =========================================
+   📂 9. PANEL CONTROL
+========================================= */
+
+function openSliderPanel() {
+    const panel = document.getElementById('year-slider-panel');
+    panel.style.display = 'flex';
+    panel.style.transform = 'translateX(0)';
+    showLayerPanelTab('legend');
+    deactivateAnalysisTools();
+}
+
+function showLayerPanelTab(tab) {
+    const legendTab = document.getElementById('legend-tab');
+    const analysisTab = document.getElementById('analysis-tab');
+    const legendBtn = document.getElementById('legend-tab-btn');
+    const analysisBtn = document.getElementById('analysis-tab-btn');
+
+    if (tab === 'analysis') {
+        legendTab.style.display = 'none';
+        analysisTab.style.display = 'block';
+        legendBtn.classList.remove('active');
+        analysisBtn.classList.add('active');
+    } else {
+        legendTab.style.display = 'block';
+        analysisTab.style.display = 'none';
+        legendBtn.classList.add('active');
+        analysisBtn.classList.remove('active');
+        deactivateAnalysisTools();
+    }
+}
+
+function activatePixelTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Pixel Select.');
+        return;
+    }
+
+    clearBoundaryLayer();
+    document.getElementById('pixel-tool-btn').classList.add('active');
+    document.getElementById('timeseries-tool-btn').classList.remove('active');
+    document.getElementById('boundary-tool-btn').classList.remove('active');
+    document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('analysis-tool-help').textContent = 'Pixel Select is active. Click the map to inspect the exact pixel value for the current tile.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    setMapClickHandler(getPixelValue);
+}
+
+function activateTimeSeriesTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Time Analysis.');
+        return;
+    }
+
+    clearBoundaryLayer();
+    document.getElementById('pixel-tool-btn').classList.remove('active');
+    document.getElementById('boundary-tool-btn').classList.remove('active');
+    document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('timeseries-tool-btn').classList.add('active');
+    document.getElementById('analysis-tool-help').textContent = 'Time Analysis is active. Click the map to choose a point and load a time series.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'block';
+    setMapClickHandler(selectTimeSeriesPoint);
+}
+
+function activateBoundaryTool() {
+    if (!currentDatasetId) {
+        alert('Activate a dataset first to use Boundaries analysis.');
+        return;
+    }
+
+    const boundaryBtn = document.getElementById('boundary-tool-btn');
+    if (boundaryBtn.classList.contains('active')) {
+        clearBoundaryLayer();
+        deactivateAnalysisTools();
+        return;
+    }
+
+    document.getElementById('pixel-tool-btn').classList.remove('active');
+    document.getElementById('timeseries-tool-btn').classList.remove('active');
+    boundaryBtn.classList.add('active');
+    document.getElementById('boundary-type-selector').style.display = 'block';
+    document.getElementById('analysis-tool-help').textContent = 'Boundary analysis is active. Select a boundary type below, then click a polygon to clip the current raster.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    setMapClickHandler(null);
+}
+
+function deactivateAnalysisTools() {
+    const pixelBtn = document.getElementById('pixel-tool-btn');
+    const timeseriesBtn = document.getElementById('timeseries-tool-btn');
+    const boundaryBtn = document.getElementById('boundary-tool-btn');
+
+    if (pixelBtn) pixelBtn.classList.remove('active');
+    if (timeseriesBtn) timeseriesBtn.classList.remove('active');
+    if (boundaryBtn) boundaryBtn.classList.remove('active');
+    document.getElementById('boundary-type-selector').style.display = 'none';
+    document.getElementById('analysis-tool-help').textContent = 'Select a tool to activate. Pixel Select inspects a pixel value, Time Analysis selects a point and shows its history, Boundaries clips a raster to a selected polygon.';
+    document.getElementById('analysis-chart-wrapper').style.display = 'none';
+    setMapClickHandler(null);
+
+    if (timeSeriesMarker) {
+        map.removeLayer(timeSeriesMarker);
+        timeSeriesMarker = null;
+    }
+}
+
+function closeYearSlider() {
+
+    const panel = document.getElementById('year-slider-panel');
+
+    // Hide panel
+    panel.style.transform = 'translateX(calc(-100% - 30px))';
+
+    // Hide sections
+    document.getElementById('year-slider-container').style.display = 'none';
+
+    // Hide the info icon
+    document.getElementById('panel-info-icon').style.display = 'none';
+
+    // Reset active dataset UI
+    document.querySelectorAll('.dataset-item')
+        .forEach(btn => btn.classList.remove('active'));
+
+    // Remove map layer
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+        currentLayer = null;
+    }
+
+    currentDatasetId = null;
+    deactivateAnalysisTools();
+
+    setTimeout(() => {
+        if (!currentDatasetId) {
+            panel.style.display = 'none';
+        }
+    }, 320);
+}
+
+  /* =========================================
+   📂 10. //PLAY Animation
+========================================= */
+  function playAnimation() {
+
+    if (!currentDatasetId) return;
+
+    const tiles = datasetTiles[currentDatasetId];
+    const slider = document.getElementById('year-slider');
+
+    if (!tiles || tiles.length === 0) return;
+
+    isPlaying = true;
+
+    animationInterval = setInterval(() => {
+
+        let index = parseInt(slider.value);
+
+        if (index >= tiles.length - 1) {
+            index = 0; // loop
+        } else {
+            index++;
+        }
+
+        slider.value = index;
+
+        const tile = tiles[index];
+
+        renderTile(tile);
+        updateTileInfo(tile, tiles.length, index);
+
+    }, 800); // speed (ms)
+}
+
+  /* =========================================
+   📂 11. //Pause Function
+========================================= */
+
+function pauseAnimation() {
+    clearInterval(animationInterval);
+    isPlaying = false;
+}
+
+  /* =========================================
+   📂 12. //Toggle Button
+========================================= */
+
+function toggleAnimation() {
+    if (isPlaying) {
+        pauseAnimation();
+    } else {
+        playAnimation();
+    }
+}
+
+  /* =========================================
+   📂 13. //Click Handler
+========================================= */
+function setMapClickHandler(handler) {
+    map.off('click');
+    if (typeof handler === 'function') {
+        map.on('click', function(e) {
+            handler(e.latlng);
+        });
+    }
+}
+
+function getPixelValue(latlng) {
+    if (!currentDatasetId) return;
+
+    const tiles = datasetTiles[currentDatasetId];
+    if (!tiles || tiles.length === 0) return;
+
+    const slider = document.getElementById('year-slider');
+    const tile = tiles[slider.value];
+    const lat = latlng.lat;
+    const lng = latlng.lng;
+
+    // Show loading modal
+    showAnalysisModal('Pixel Analysis', 'loading');
+
+    fetch(`/api/pixel/?lat=${lat}&lng=${lng}&tile_id=${tile.id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                showAnalysisModal('Pixel Analysis', 'error', data.error);
+                return;
+            }
+
+            if (data.value === null) {
+                showAnalysisModal('Pixel Analysis', 'error', 'No data (nodata pixel)');
+                return;
+            }
+
+            // Show pixel result
+            showPixelResult(data.value, tile.date_str, lat, lng);
+        })
+        .catch(err => {
+            console.error(err);
+            showAnalysisModal('Pixel Analysis', 'error', 'Error retrieving pixel value');
+        });
+}
+
+  /* =========================================
+   📂 14. //Time Series Mode Functions
+========================================= */
+function enableTimeSeriesMode() {
+    currentMode = "timeseries";
+    document.getElementById('timeseries-btn').style.display = 'none';
+    document.getElementById('normal-mode-btn').style.display = 'block';
+    document.getElementById('chart').style.display = 'block';
+    
+    // Remove existing click handlers and add time series click handler
+    map.off('click');
+    map.on('click', function(e) {
+        selectTimeSeriesPoint(e.latlng);
+    });
+    
+    alert('Time Series Mode: Click on the map to select a point for time series analysis');
+}
+
+function disableTimeSeriesMode() {
+    currentMode = "normal";
+    document.getElementById('timeseries-btn').style.display = 'block';
+    document.getElementById('normal-mode-btn').style.display = 'none';
+    document.getElementById('chart').style.display = 'none';
+    
+    // Remove time series marker and restore normal click handler
+    if (timeSeriesMarker) {
+        map.removeLayer(timeSeriesMarker);
+        timeSeriesMarker = null;
+        selectedPoint = null;
+    }
+    
+    // Restore normal pixel inspection
+    map.off('click');
+    map.on('click', function(e) {
+        getPixelValue(e.latlng);
+    });
+}
+
+function selectTimeSeriesPoint(latlng) {
+    selectedPoint = latlng;
+    
+    // Remove previous marker
+    if (timeSeriesMarker) {
+        map.removeLayer(timeSeriesMarker);
+    }
+    
+    // Add new marker
+    timeSeriesMarker = L.marker(latlng).addTo(map)
+        .bindPopup("Time series point selected")
+        .openPopup();
+    
+    // Automatically fetch time series
+    getTimeSeries();
+}
+
+  /* =========================================
+   📂 15. //FETCH TIME SERIES
+========================================= */
+function getTimeSeries() {
+
+    if (!selectedPoint || !currentDatasetId) {
+        alert("Select a point and dataset first");
+        return;
+    }
+
+    const lat = selectedPoint.lat;
+    const lng = selectedPoint.lng;
+
+    // Get date range from current dataset
+    const tiles = datasetTiles[currentDatasetId];
+    if (!tiles || tiles.length === 0) {
+        alert("No tiles available for this dataset");
+        return;
+    }
+
+    const startYear = Math.min(...tiles.map(t => t.year));
+    const endYear = Math.max(...tiles.map(t => t.year));
+    const startMonth = 1;
+    const endMonth = 12;
+
+    // Show loading modal
+    showAnalysisModal('Time Series Analysis', 'loading');
+
+    fetch(`/api/timeseries/?lat=${lat}&lng=${lng}&dataset_id=${currentDatasetId}&start_year=${startYear}&start_month=${startMonth}&end_year=${endYear}&end_month=${endMonth}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                showAnalysisModal('Time Series Analysis', 'error', data.error);
+                return;
+            }
+            showTimeSeriesResult(data.timeseries, lat, lng);
+        })
+        .catch(err => {
+            console.error(err);
+            showAnalysisModal('Time Series Analysis', 'error', 'Error retrieving time series data');
+        });
+}
+
+  /* =========================================
+   📂 16. //Draw chart
+========================================= */
+function drawChart(series) {
+    
+    // Clear previous chart if exists
+    const chartCanvas = document.getElementById('chart');
+    const existingChart = Chart.getChart(chartCanvas);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const labels = series.map(p => p.date);
+    const values = series.map(p => p.value);
+
+    const ctx = chartCanvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pixel Value Over Time',
+                data: values,
+                fill: false,
+                tension: 0.2,
+                borderColor: '#007bff',
+                backgroundColor: '#007bff',
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                spanGaps: true // Connect points even with null values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Time Series at Lat: ${selectedPoint.lat.toFixed(4)}, Lng: ${selectedPoint.lng.toFixed(4)}`
+                },
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Pixel Value'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+}
+
+/* =========================================
+   📋 15. DATASET DETAILS MODAL FUNCTIONS
+========================================= */
+
+function showDatasetDetails(event, datasetId) {
+    // Prevent event bubbling to avoid triggering loadLayer
+    event.stopPropagation();
+    
+    // Fetch dataset details
+    fetchDatasetTiles(datasetId)
+        .then(data => {
+            if (data.error || data.tiles.length === 0) {
+                alert("No data found for this dataset");
+                return;
+            }
+            
+            // Populate modal with dataset info
+            populateModal(data.dataset_info, data.tiles);
+            
+            // Show modal
+            document.getElementById('datasetModal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Error loading dataset details");
+        });
+}
+
+function showCurrentDatasetDetails() {
+    if (!currentDatasetId) {
+        alert("No dataset currently selected");
+        return;
+    }
+    
+    // Fetch dataset details for current dataset
+    fetchDatasetTiles(currentDatasetId)
+        .then(data => {
+            if (data.error || data.tiles.length === 0) {
+                alert("No data found for this dataset");
+                return;
+            }
+            
+            // Populate modal with dataset info
+            populateModal(data.dataset_info, data.tiles);
+            
+            // Show modal
+            document.getElementById('datasetModal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Error loading dataset details");
+        });
+}
+
+function closeDatasetModal() {
+    document.getElementById('datasetModal').style.display = 'none';
+}
+
+function populateModal(info, tiles) {
+    // Dataset Name
+    document.getElementById('modal-detail-name').textContent = 
+        info.index_name || info.name || 'Unknown';
+    
+    // Colormap
+    document.getElementById('modal-detail-colormap').textContent = 
+        info.colormap || 'Unknown';
+    
+    // Total Tiles
+    document.getElementById('modal-detail-periods').textContent = 
+        info.total_tiles || tiles.length || 0;
+    
+    // Tile Size
+    if (info.tile_width && info.tile_height) {
+        document.getElementById('modal-detail-size').textContent = 
+            `${info.tile_width} × ${info.tile_height}`;
+    } else {
+        document.getElementById('modal-detail-size').textContent = 'Unknown';
+    }
+    
+    // Value Range
+    if (info.min_value !== null && info.max_value !== null) {
+        document.getElementById('modal-detail-range').textContent = 
+            `${info.min_value} to ${info.max_value}`;
+    } else {
+        document.getElementById('modal-detail-range').textContent = 'Unknown';
+    }
+    
+    // Creation Date
+    if (info.created_at) {
+        const date = new Date(info.created_at);
+        document.getElementById('modal-detail-created').textContent = 
+            date.toLocaleDateString();
+    } else {
+        document.getElementById('modal-detail-created').textContent = 'Unknown';
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('datasetModal');
+    if (event.target === modal) {
+        closeDatasetModal();
+    }
+}
+
+/* =========================================
+   📊 ANALYSIS MODAL FUNCTIONS
+========================================= */
+
+function showAnalysisModal(title, state, errorMessage = null) {
+    const modal = document.getElementById('analysisModal');
+    const modalTitle = document.getElementById('analysis-modal-title');
+    const loadingDiv = document.getElementById('analysis-loading');
+    const resultsDiv = document.getElementById('analysis-results');
+
+    modalTitle.textContent = title;
+
+    if (state === 'loading') {
+        loadingDiv.style.display = 'block';
+        resultsDiv.style.display = 'none';
+        resultsDiv.classList.remove('show');
+    } else if (state === 'error') {
+        loadingDiv.style.display = 'none';
+        resultsDiv.innerHTML = `
+            <div class="pixel-result">
+                <div style="color: #dc3545; font-size: 18px; margin-bottom: 16px;">
+                    <i class="fa fa-exclamation-triangle"></i> Error
+                </div>
+                <p style="color: #6c757d; margin: 0;">${errorMessage}</p>
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+        resultsDiv.classList.add('show');
+    }
+
+    modal.style.display = 'block';
+}
+
+function showPixelResult(value, date, lat, lng) {
+    const resultsDiv = document.getElementById('analysis-results');
+    const loadingDiv = document.getElementById('analysis-loading');
+
+    loadingDiv.style.display = 'none';
+
+    resultsDiv.innerHTML = `
+        <div class="pixel-result">
+            <div class="pixel-value">${value.toFixed(4)}</div>
+            <div class="pixel-meta">
+                <div class="pixel-meta-item">
+                    <div class="pixel-meta-label">Date</div>
+                    <div class="pixel-meta-value">${date}</div>
+                </div>
+                <div class="pixel-meta-item">
+                    <div class="pixel-meta-label">Coordinates</div>
+                    <div class="pixel-meta-value">${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    resultsDiv.style.display = 'block';
+    resultsDiv.classList.add('show');
+}
+
+function showTimeSeriesResult(series, lat, lng) {
+    const resultsDiv = document.getElementById('analysis-results');
+    const loadingDiv = document.getElementById('analysis-loading');
+
+    loadingDiv.style.display = 'none';
+
+    // Calculate statistics
+    const values = series.map(p => p.value).filter(v => v !== null);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+    resultsDiv.innerHTML = `
+        <div class="timeseries-result">
+            <div class="timeseries-header">
+                <div class="timeseries-coords">Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+                <h4 style="margin: 8px 0; color: #01416d;">Time Series Analysis</h4>
+            </div>
+            <div class="timeseries-chart-container">
+                <canvas id="modal-chart"></canvas>
+            </div>
+            <div class="timeseries-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${min.toFixed(2)}</div>
+                    <div class="stat-label">Minimum</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${max.toFixed(2)}</div>
+                    <div class="stat-label">Maximum</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${avg.toFixed(2)}</div>
+                    <div class="stat-label">Average</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${values.length}</div>
+                    <div class="stat-label">Data Points</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    resultsDiv.style.display = 'block';
+    resultsDiv.classList.add('show');
+
+    // Draw chart in modal
+    drawModalChart(series);
+}
+
+function drawModalChart(series) {
+    const chartCanvas = document.getElementById('modal-chart');
+    const existingChart = Chart.getChart(chartCanvas);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const labels = series.map(p => p.date);
+    const values = series.map(p => p.value);
+
+    const ctx = chartCanvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pixel Value',
+                data: values,
+                fill: false,
+                tension: 0.2,
+                borderColor: '#018dc2',
+                backgroundColor: '#018dc2',
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                spanGaps: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Value'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function closeAnalysisModal() {
+    const modal = document.getElementById('analysisModal');
+    modal.style.display = 'none';
+}
+
+// Close analysis modal when clicking outside
+document.getElementById('analysisModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeAnalysisModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDatasetModal();
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PNG Image Viewer with Slider</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.5.2/ol.css" %}>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        #slider-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 300px;
+        }
+        #layer-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        #layer-info {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #opacity-slider {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .slider-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div id="slider-container">
+        <div id="layer-info">Layer: <span id="current-layer">1</span> / <span id="total-layers">1</span></div>
+        <input type="range" id="layer-slider" min="1" max="1" value="1" step="1">
+        <div class="slider-label">Switch between layers</div>
+        
+        <div class="slider-label">Opacity: <span id="opacity-value">100</span>%</div>
+        <input type="range" id="opacity-slider" min="0" max="100" value="100" step="1">
+        
+        <div class="slider-label">Base Map:</div>
+        <select id="base-layer-select">
+            <option value="OpenStreetMap">OpenStreetMap</option>
+            <option value="Satellite">Satellite</option>
+            <option value="None">None</option>
+        </select>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.5.2/dist/ol.js" %}></script>
+    <script>
+        // Configuration - using existing PNG files from qgis2web export
+        const imageConfigs = [
+            {
+                name: "Tunisia SPI 2016-11",
+                url: "./qgis2web_2025_12_19-14_49_34_358099/layers/Tunisia_SPI_2016_11_1.png" %},
+                extent: [837000, 3531773, 1292000, 4515990]
+            },
+            {
+                name: "Tunisia SPI 2016-12", 
+                url: "./qgis2web_2025_12_19-14_49_34_358099/layers/Tunisia_SPI_2016_12_2.png" %},
+                extent: [837000, 3531773, 1292000, 4515990]
+            }
+        ];
+
+        // Base layers
+        const baseLayers = {
+            'OpenStreetMap': new ol.layer.Tile({
+                source: new ol.source.OSM(),
+                visible: true
+            }),
+            'Satellite': new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    attributions: 'Tiles © Esri'
+                }),
+                visible: false
+            }),
+            'None': new ol.layer.Tile({
+                visible: false
+            })
+        };
+
+        // Create layers for each image
+        const imageLayers = [];
+        
+        imageConfigs.forEach((config, index) => {
+            const layer = new ol.layer.Image({
+                opacity: 1,
+                title: config.name,
+                visible: index === 0, // Only first layer visible initially
+                source: new ol.source.ImageStatic({
+                    url: config.url,
+                    projection: 'EPSG:3857',
+                    imageExtent: config.extent
+                })
+            });
+            imageLayers.push(layer);
+        });
+
+        // Create map with base layers
+        const allBaseLayers = Object.values(baseLayers);
+        const map = new ol.Map({
+            target: 'map',
+            renderer: 'canvas',
+            layers: [...allBaseLayers, ...imageLayers],
+            view: new ol.View({
+                projection: 'EPSG:3857',
+                center: ol.proj.fromLonLat([10.0, 34.0]), // Center on Tunisia
+                zoom: 6,
+                maxZoom: 28,
+                minZoom: 1
+            })
+        });
+
+        // Fit map to the extent of the first image
+        if (imageConfigs.length > 0) {
+            map.getView().fit(imageConfigs[0].extent, { padding: [20, 20, 20, 20] });
+        }
+
+        // Slider controls
+        const layerSlider = document.getElementById('layer-slider');
+        const opacitySlider = document.getElementById('opacity-slider');
+        const baseLayerSelect = document.getElementById('base-layer-select');
+        const currentLayerSpan = document.getElementById('current-layer');
+        const totalLayersSpan = document.getElementById('total-layers');
+        const opacityValueSpan = document.getElementById('opacity-value');
+
+        // Update total layers count
+        totalLayersSpan.textContent = imageConfigs.length;
+        layerSlider.max = imageConfigs.length;
+
+        // Layer switching
+        layerSlider.addEventListener('input', function(e) {
+            const selectedLayerIndex = parseInt(e.target.value) - 1;
+            
+            // Hide all layers
+            imageLayers.forEach(layer => layer.setVisible(false));
+            
+            // Show selected layer
+            if (imageLayers[selectedLayerIndex]) {
+                imageLayers[selectedLayerIndex].setVisible(true);
+                currentLayerSpan.textContent = e.target.value;
+            }
+        });
+
+        // Opacity control
+        opacitySlider.addEventListener('input', function(e) {
+            const opacity = e.target.value / 100;
+            const visibleLayer = imageLayers.find(layer => layer.getVisible());
+            if (visibleLayer) {
+                visibleLayer.setOpacity(opacity);
+            }
+            opacityValueSpan.textContent = e.target.value;
+        });
+
+        // Base layer switching
+        baseLayerSelect.addEventListener('change', function(e) {
+            const selectedBaseLayer = e.target.value;
+            
+            // Hide all base layers
+            Object.values(baseLayers).forEach(layer => layer.setVisible(false));
+            
+            // Show selected base layer
+            if (baseLayers[selectedBaseLayer]) {
+                baseLayers[selectedBaseLayer].setVisible(true);
+            }
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            const currentValue = parseInt(layerSlider.value);
+            
+            if (e.key === 'ArrowLeft' && currentValue > 1) {
+                layerSlider.value = currentValue - 1;
+                layerSlider.dispatchEvent(new Event('input'));
+            } else if (e.key === 'ArrowRight' && currentValue < imageConfigs.length) {
+                layerSlider.value = currentValue + 1;
+                layerSlider.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Add error handling for missing images
+        imageLayers.forEach((layer, index) => {
+            layer.getSource().on('imageloaderror', function() {
+                console.error(`Failed to load image: ${imageConfigs[index].url}`);
+                alert(`Failed to load image: ${imageConfigs[index].url}\nPlease check the file path.`);
+            });
+        });
+    </script>
+</body>
+</html>
