@@ -1,8 +1,8 @@
-# 🌍 Smart SDG Tunisia Geoportal
+# Smart SDG Tunisia Geoportal
 
 A comprehensive geospatial platform for monitoring Sustainable Development Goals (SDGs) in Tunisia using satellite imagery, AI-powered analysis, and interactive data visualization.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -16,7 +16,7 @@ A comprehensive geospatial platform for monitoring Sustainable Development Goals
 - [Development](#development)
 - [Contributing](#contributing)
 
-## 🎯 Overview
+## Overview
 
 The Smart SDG Tunisia Geoportal is an advanced web-based platform designed to monitor, analyze, and visualize Sustainable Development Goals across Tunisia using satellite-derived indices. The platform combines geospatial data processing, interactive mapping, time series analysis, and AI-powered interpretation to provide researchers, policymakers, and the public with comprehensive insights into environmental and social indicators.
 
@@ -29,7 +29,7 @@ The Smart SDG Tunisia Geoportal is an advanced web-based platform designed to mo
 - **Scientific Visualization**: 20+ professional colormaps for accurate data representation
 - **Real-Time Processing**: Efficient raster data processing and visualization
 
-## ✨ Features
+## Features
 
 ### Core Functionality
 
@@ -206,7 +206,7 @@ google-generativeai==0.3.2
 └─────────────┘                             └─────────────┘
 ```
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
@@ -277,7 +277,7 @@ python manage.py runserver
 9. **Access the application**
 Open browser at `http://127.0.0.1:8000`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 geoportal/
